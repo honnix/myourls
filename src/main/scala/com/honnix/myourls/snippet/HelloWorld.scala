@@ -1,5 +1,4 @@
-package com.honnix.myourls {
-package snippet {
+package com.honnix.myourls.snippet
 
 import _root_.scala.xml.{NodeSeq, Text}
 import _root_.net.liftweb.util._
@@ -9,7 +8,8 @@ import com.honnix.myourls.lib._
 import Helpers._
 
 class HelloWorld {
-  lazy val date: Box[Date] = DependencyFactory.inject[Date] // inject the date
+  lazy val date: Box[Date] = DependencyFactory.inject[Date]
+  // inject the date
 
   // bind the date into the element with id "time"
   def howdy = "#time *" #> date.map(_.toString)
@@ -19,7 +19,4 @@ class HelloWorld {
 
    def howdy = "#time *" #> date.toString
    */
-}
-
-}
 }

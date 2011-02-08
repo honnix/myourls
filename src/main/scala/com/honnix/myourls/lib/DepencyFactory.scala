@@ -1,5 +1,4 @@
-package com.honnix.myourls {
-package lib {
+package com.honnix.myourls.lib
 
 import net.liftweb._
 import http._
@@ -15,6 +14,7 @@ import _root_.java.util.Date
  * stack basis.
  */
 object DependencyFactory extends Factory {
+
   implicit object time extends FactoryMaker(Helpers.now _)
 
   /**
@@ -26,6 +26,7 @@ object DependencyFactory extends Factory {
   private def init() {
     List(time)
   }
+
   init()
 }
 
@@ -53,5 +54,3 @@ sealed abstract class Changer {
   }
 }
 */
-}
-}

@@ -19,11 +19,11 @@ import _root_.com.honnix.myourls.model._
 class Boot {
   def boot {
     if (!DB.jndiJdbcConnAvailable_?) {
-      val vendor = 
-	new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-			     Props.get("db.url") openOr 
-			     "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-			     Props.get("db.user"), Props.get("db.password"))
+      val vendor =
+        new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
+          Props.get("db.url") openOr
+                  "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
+          Props.get("db.user"), Props.get("db.password"))
 
       LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
 
@@ -32,32 +32,37 @@ class Boot {
 
     // where to search snippet
     LiftRules.addToPackages("com.honnix.myourls")
-    Schemifier.schemify(true, Schemifier.infoF _, User)
+    Schemifier.schemify(true, Schemifier.infoF _, ShortenedUrl)
 
     // Build SiteMap
     def sitemap() = SiteMap(
-      Menu("Home") / "index" >> User.AddUserMenusAfter, // Simple menu form
-      // Menu with special Link
-      Menu(Loc("Static", Link(List("static"), true, "/static/index"), 
-	       "Static Content")))
+      Menu("admin", "Admin") / "index",
+      Menu(Loc("shortener", Link(List("shortener"), true, ""),
+        "Shortener")) >> Hidden)
 
-    LiftRules.setSiteMapFunc(() => User.sitemapMutator(sitemap()))
+    LiftRules.setSiteMapFunc(sitemap _)
 
     /*
      * Show the spinny image when an Ajax call starts
      */
     LiftRules.ajaxStart =
-      Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
+            Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
 
     /*
      * Make the spinny image go away when it ends
      */
     LiftRules.ajaxEnd =
-      Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+            Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
+
+    /*
+     * Rewrite http://server/<id> to http://server/shortener/<id>
+     */
+    LiftRules.statelessRewrite.append{
+      case RewriteRequest(ParsePath(List(id), "", _, _), _, _) if "index" != id =>
+        RewriteResponse(List("shortener", id))
+    }
 
     LiftRules.early.append(makeUtf8)
-
-    LiftRules.loggedInTest = Full(() => User.loggedIn_?)
 
     S.addAround(DB.buildLoanWrapper)
   }
