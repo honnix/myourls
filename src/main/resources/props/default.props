@@ -1,1 +1,4 @@
 # Properties in this file will be read when running in dev mode
+db.host = localhost
+db.port = 27017
+db.name = myourls

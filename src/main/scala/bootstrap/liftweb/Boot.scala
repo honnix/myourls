@@ -19,17 +19,13 @@
  */
 package bootstrap.liftweb
 
-import _root_.net.liftweb.util._
-import _root_.net.liftweb.common._
-import _root_.net.liftweb.http._
-import _root_.net.liftweb.http.provider._
-import _root_.net.liftweb.sitemap._
-import _root_.net.liftweb.sitemap.Loc._
-import Helpers._
-import _root_.net.liftweb.mapper.{DB, ConnectionManager, Schemifier, DefaultConnectionIdentifier, StandardDBVendor}
-import _root_.java.sql.{Connection, DriverManager}
-import _root_.com.honnix.myourls.model._
-
+import net.liftweb.util._
+import net.liftweb.common._
+import net.liftweb.http._
+import net.liftweb.http.provider._
+import net.liftweb.sitemap._
+import net.liftweb.sitemap.Loc._
+import net.liftweb.mongodb._
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -38,28 +34,23 @@ import _root_.com.honnix.myourls.model._
  * @author honnix
  */
 class Boot {
+  val ProductName = "myourls"
+
   def boot {
-    if (!DB.jndiJdbcConnAvailable_?) {
-      val vendor =
-        new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
-          Props.get("db.url") openOr
-                  "jdbc:h2:lift_proto.db;AUTO_SERVER=TRUE",
-          Props.get("db.user"), Props.get("db.password"))
-
-      LiftRules.unloadHooks.append(vendor.closeAllConnections_! _)
-
-      DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
-    }
+    // define mongodb connection
+    MongoDB.defineDb(new MongoIdentifier {val jndiName = ProductName},
+      MongoAddress(MongoHost(Props.get("db.host") openOr "localhost",
+        (Props.get("db.port") openOr "27017").toInt),
+        Props.get("db.name") openOr ProductName))
 
     // where to search snippet
     LiftRules.addToPackages("com.honnix.myourls")
-    Schemifier.schemify(true, Schemifier.infoF _, ShortenedUrl)
 
     // Build SiteMap
     def sitemap() = SiteMap(
       Menu("admin", "Admin") / "index",
       Menu(Loc("shortener", Link(List("shortener"), true, ""),
-        "Shortener")) >> Hidden)
+        "Shortener", Hidden)))
 
     LiftRules.setSiteMapFunc(sitemap _)
 
@@ -78,14 +69,15 @@ class Boot {
     /*
      * Rewrite http://server/<id> to http://server/shortener/<id>
      */
-    LiftRules.statelessRewrite.append {
+    LiftRules.statelessRewrite.append{
       case RewriteRequest(ParsePath(List(id), "", _, _), _, _) if "index" != id =>
         RewriteResponse(List("shortener", id))
     }
 
-    LiftRules.early.append(makeUtf8)
+    // define resource bundle base name 
+    LiftRules.resourceNames = List(ProductName)
 
-    S.addAround(DB.buildLoanWrapper)
+    LiftRules.early.append(makeUtf8)
   }
 
   /**
