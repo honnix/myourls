@@ -1,5 +1,5 @@
 /**
- * Created : 02.09, 2011
+ * Created : 02.11, 2011
  *
  * Copyright : (C) 2011 by Honnix
  * Email     : hxliang1982@gmail.com
@@ -17,26 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.honnix.myourls.view
+package com.honnix.myourls.model
 
-import net.liftweb.http.{S, LiftView}
-import net.liftweb.http.S._
-import com.honnix.myourls.model.ShortenedUrl
+import net.liftweb.mongodb.record.{MongoMetaRecord, MongoId, MongoRecord}
+import net.liftweb.mongodb.record.field.DateField
+import net.liftweb.record.field.{IntField, StringField}
 
-/**
- * Shortener view who does the real job.
- *
- * @author honnix
- */
-class Shortener extends LiftView {
-  val AdminPage = "/index"
+class ShortenedUrl private() extends MongoRecord[ShortenedUrl] with MongoId[ShortenedUrl] {
+  def meta = ShortenedUrl
 
-  def dispatch = {
-    case id: String if id.matches("\\w+") =>
-      import net.liftweb.json.JsonDSL._
-      val record = ShortenedUrl.find(ShortenedUrl.linkId.name -> id)
-      val url = if (record.isDefined) record.open_!.originUrl.value else AdminPage
-      redirectTo(url)
-    case _ => redirectTo(AdminPage)
-  }
+  object linkId extends StringField(this, 10)
+
+  object originUrl extends StringField(this, 500)
+
+  object shortUrl extends StringField(this, 100)
+
+  object date extends DateField(this)
+
+  object ip extends StringField(this, 15)
+
+  object clickCount extends IntField(this)
+
 }
+
+object ShortenedUrl extends ShortenedUrl with MongoMetaRecord[ShortenedUrl]

@@ -27,6 +27,8 @@ import net.liftweb.sitemap._
 import net.liftweb.sitemap.Loc._
 import net.liftweb.mongodb._
 
+import com.honnix.myourls.constant.SystemConstant._
+
 /**
  * A class that's instantiated early and run.  It allows the application
  * to modify lift's environment.
@@ -34,11 +36,11 @@ import net.liftweb.mongodb._
  * @author honnix
  */
 class Boot {
-  val ProductName = "myourls"
-
   def boot {
     // define mongodb connection
-    MongoDB.defineDb(new MongoIdentifier {val jndiName = ProductName},
+    MongoDB.defineDb(new MongoIdentifier {
+      val jndiName = ProductName
+    },
       MongoAddress(MongoHost(Props.get("db.host") openOr "localhost",
         (Props.get("db.port") openOr "27017").toInt),
         Props.get("db.name") openOr ProductName))
@@ -69,7 +71,7 @@ class Boot {
     /*
      * Rewrite http://server/<id> to http://server/shortener/<id>
      */
-    LiftRules.statelessRewrite.append{
+    LiftRules.statelessRewrite.append {
       case RewriteRequest(ParsePath(List(id), "", _, _), _, _) if "index" != id =>
         RewriteResponse(List("shortener", id))
     }
