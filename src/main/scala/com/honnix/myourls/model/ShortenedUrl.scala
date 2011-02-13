@@ -38,7 +38,6 @@ class ShortenedUrl private() extends MongoRecord[ShortenedUrl] with MongoId[Shor
   object ip extends StringField(this, 15)
 
   object clickCount extends IntField(this)
-
 }
 
 object ShortenedUrl extends ShortenedUrl with MongoMetaRecord[ShortenedUrl]
