@@ -17,26 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.honnix.myourls.view
+package com.honnix.myourls {
+package view {
 
 import net.liftweb.http.{S, LiftView}
 import net.liftweb.http.S._
 import com.honnix.myourls.model.ShortenedUrl
+import com.honnix.myourls.constant.SystemConstant.AdminPageUrl
+import net.liftweb.common.Loggable
 
 /**
  * Shortener view who does the real job.
  *
  * @author honnix
  */
-class Shortener extends LiftView {
-  val AdminPage = "/index"
-
+class Shortener extends LiftView with Loggable {
   def dispatch = {
     case id: String if id.matches("\\w+") =>
       import net.liftweb.json.JsonDSL._
+      logger.debug("linkId is [" + id + "]")
       val record = ShortenedUrl.find(ShortenedUrl.linkId.name -> id)
-      val url = if (record.isDefined) record.open_!.originUrl.value else AdminPage
+      logger.debug("record is [" + record + "]")
+      val url = if (record.isDefined) record.open_!.originUrl.value else AdminPageUrl
       redirectTo(url)
-    case _ => redirectTo(AdminPage)
+    case _ => redirectTo(AdminPageUrl)
   }
+}
+
+}
+
 }

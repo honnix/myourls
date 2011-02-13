@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.honnix.myourls.model
+package com.honnix.myourls {
+package model {
 
 import net.liftweb.mongodb.record.{MongoMetaRecord, MongoId, MongoRecord}
 import net.liftweb.mongodb.record.field.DateField
@@ -41,3 +42,7 @@ class ShortenedUrl private() extends MongoRecord[ShortenedUrl] with MongoId[Shor
 }
 
 object ShortenedUrl extends ShortenedUrl with MongoMetaRecord[ShortenedUrl]
+
+}
+
+}

@@ -38,9 +38,7 @@ import com.honnix.myourls.constant.SystemConstant._
 class Boot {
   def boot {
     // define mongodb connection
-    MongoDB.defineDb(new MongoIdentifier {
-      val jndiName = ProductName
-    },
+    MongoDB.defineDb(DefaultMongoIdentifier,
       MongoAddress(MongoHost(Props.get("db.host") openOr "localhost",
         (Props.get("db.port") openOr "27017").toInt),
         Props.get("db.name") openOr ProductName))

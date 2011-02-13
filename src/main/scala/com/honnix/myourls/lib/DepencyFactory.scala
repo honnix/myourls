@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.honnix.myourls.lib
+package com.honnix.myourls {
+package lib {
 
 import net.liftweb._
 import http._
@@ -73,3 +74,7 @@ sealed abstract class Changer {
   }
 }
 */
+
+}
+
+}

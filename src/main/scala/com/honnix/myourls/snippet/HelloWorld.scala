@@ -1,4 +1,5 @@
-package com.honnix.myourls.snippet
+package com.honnix.myourls {
+package snippet {
 
 import scala.xml.{NodeSeq, Text}
 import net.liftweb.util._
@@ -13,4 +14,8 @@ class HelloWorld {
 
   // bind the date into the element with id "time"
   def howdy = "#time *" #> date.map(_.toString)
+}
+
+}
+
 }

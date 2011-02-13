@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.honnix.myourls.view
+package com.honnix.myourls {
+package view {
 
 import org.specs._
 import net.liftweb._
@@ -28,8 +29,7 @@ import org.specs.matcher._
 import org.specs.specification._
 import Helpers._
 import runner.{JUnit4, ConsoleRunner}
-
-import com.honnix.myourls.view.Shortener
+import constant.SystemConstant.AdminPageUrl
 
 class ShortenerTestSpecsAsTest extends JUnit4(ShortenerTestSpecs)
 
@@ -37,22 +37,26 @@ object ShortenerTestSpecsRunner extends ConsoleRunner(ShortenerTestSpecs)
 
 object ShortenerTestSpecs extends Specification {
   val session = new LiftSession("", randomString(20), Empty)
-  
-  var shortner: Shortener = _
 
-  override def executeExpectations(ex: Examples, t: => Any): Any = {
-    S.initIfUninitted(session) {
-      super.executeExpectations(ex, t)
-    }
-  }
+  val shortener = new Shortener
   
-  override def beforeExample(ex: Examples) {
-    shortner = new Shortener
+  private def init(f: => Any) {
+    S.initIfUninitted(session)(f)
   }
 
   "Shortner" should {
-    "redirect me to /index if i input not valid path" in {
-      new Shortener
+    doAroundExpectations(init(_))
+
+    "redirect me to /index if i input invalid path" in {
+      try {
+        shortener.dispatch("%^&")
+      } catch {
+        case e: ResponseShortcutException => e.response.asInstanceOf[RedirectResponse].uri mustEqual AdminPageUrl
+      }
     }
   }
+}
+
+}
+
 }

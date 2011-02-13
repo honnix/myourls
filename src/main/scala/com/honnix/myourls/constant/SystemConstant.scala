@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.honnix.myourls.constant
+package com.honnix.myourls {
+package constant {
 
 /**
  * This object defined system wide constants.
@@ -27,5 +28,9 @@ package com.honnix.myourls.constant
 object SystemConstant {
   val ProductName = "myourls"
 
-  val AdminPage = "index"
+  val AdminPageUrl = "/index"
+}
+
+}
+
 }
