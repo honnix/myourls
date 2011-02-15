@@ -59,7 +59,7 @@ object ShortenerTestSpecs extends Specification {
     }
 
     "redirect me to google.com if i input 1" in {
-      DependencyFactory.shortenedUrl.doWith(() => MockShortenedUrl) {
+      DependencyFactory.shortenedUrl.doWith(MockShortenedUrl) {
         try {
           shortener.dispatch("1")
         } catch {
@@ -69,7 +69,7 @@ object ShortenerTestSpecs extends Specification {
     }
 
     "redirect me to /index if i input 2" in {
-      DependencyFactory.shortenedUrl.doWith(() => MockShortenedUrl) {
+      DependencyFactory.shortenedUrl.doWith(MockShortenedUrl) {
         try {
           shortener.dispatch("2")
         } catch {
