@@ -30,16 +30,19 @@ import org.specs.specification._
 import Helpers._
 import runner.{JUnit4, ConsoleRunner}
 import constant.SystemConstant.AdminPageUrl
+import lib.DependencyFactory
+import model.{MockShortenedUrl}
 
 class ShortenerTestSpecsAsTest extends JUnit4(ShortenerTestSpecs)
 
 object ShortenerTestSpecsRunner extends ConsoleRunner(ShortenerTestSpecs)
 
+
 object ShortenerTestSpecs extends Specification {
   val session = new LiftSession("", randomString(20), Empty)
 
   val shortener = new Shortener
-  
+
   private def init(f: => Any) {
     S.initIfUninitted(session)(f)
   }
@@ -52,6 +55,26 @@ object ShortenerTestSpecs extends Specification {
         shortener.dispatch("%^&")
       } catch {
         case e: ResponseShortcutException => e.response.asInstanceOf[RedirectResponse].uri mustEqual AdminPageUrl
+      }
+    }
+
+    "redirect me to google.com if i input 1" in {
+      DependencyFactory.shortenedUrl.doWith(() => MockShortenedUrl) {
+        try {
+          shortener.dispatch("1")
+        } catch {
+          case e: ResponseShortcutException => e.response.asInstanceOf[RedirectResponse].uri mustEqual "http://google.com"
+        }
+      }
+    }
+
+    "redirect me to /index if i input 2" in {
+      DependencyFactory.shortenedUrl.doWith(() => MockShortenedUrl) {
+        try {
+          shortener.dispatch("2")
+        } catch {
+          case e: ResponseShortcutException => e.response.asInstanceOf[RedirectResponse].uri mustEqual AdminPageUrl
+        }
       }
     }
   }

@@ -22,9 +22,12 @@ package lib {
 
 import net.liftweb._
 import http._
+import mongodb.record.MongoMetaRecord
 import util._
 import common._
 import _root_.java.util.Date
+
+import model.ShortenedUrl
 
 /**
  * A factory for generating new instances of Date.  You can create
@@ -34,8 +37,12 @@ import _root_.java.util.Date
  * stack basis.
  */
 object DependencyFactory extends Factory {
+  type MetaRecord = MongoMetaRecord[ShortenedUrl]
 
   implicit object time extends FactoryMaker(Helpers.now _)
+
+  implicit object shortenedUrl extends FactoryMaker(() => ShortenedUrl.asInstanceOf[MetaRecord])
+
 
   /**
    * objects in Scala are lazily created.  The init()
@@ -44,7 +51,7 @@ object DependencyFactory extends Factory {
    * registering their types with the dependency injector
    */
   private def init() {
-    List(time)
+    List(time, shortenedUrl)
   }
 
   init()

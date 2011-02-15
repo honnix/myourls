@@ -20,28 +20,20 @@
 package com.honnix.myourls {
 package model {
 
-import net.liftweb.mongodb.record.{MongoMetaRecord, MongoId, MongoRecord}
-import net.liftweb.mongodb.record.field.DateField
-import net.liftweb.record.field.{IntField, StringField}
+import net.liftweb.mongodb.record.MongoMetaRecord
+import net.liftweb.common.{Box, Full, Empty}
+import net.liftweb.json.JsonAST.JObject
 
-class ShortenedUrl extends MongoRecord[ShortenedUrl] with MongoId[ShortenedUrl] {
-  def meta = ShortenedUrl
-
-  object linkId extends StringField(this, 10)
-
-  object originUrl extends StringField(this, 500)
-
-  object shortUrl extends StringField(this, 100)
-
-  object date extends DateField(this)
-
-  object ip extends StringField(this, 15)
-
-  object clickCount extends IntField(this)
+object MockShortenedUrl extends ShortenedUrl with MongoMetaRecord[ShortenedUrl] {
+  override def find(json: JObject): Box[ShortenedUrl] = {
+    if ("1" == json.obj.head.value.values)
+      Full(ShortenedUrl.createRecord.originUrl("http://google.com"))
+    else Empty
+  }
 }
-
-object ShortenedUrl extends ShortenedUrl with MongoMetaRecord[ShortenedUrl]
 
 }
 
 }
+
+
