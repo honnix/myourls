@@ -1,6 +1,0 @@
-target
-*.iml
-*.ipr
-*.iws
-.DS_Store
-lift_proto*

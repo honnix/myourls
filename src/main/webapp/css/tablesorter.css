@@ -2,19 +2,19 @@
 table.tblSorter {
 	font-family:Verdana, Arial;
 	background-color: #CDCDCD;
-	margin:10px 0px 0px;
+	margin:10px 0pt 15px;
 	font-size: 8pt;
 	width: 100%;
 	text-align: left;
 }
-table.tblSorter thead tr th, table.tblSorter tfoot tr th, table.tblSorter th.header {
-	background-color: #C7E7FF;
+table.tblSorter th.header {
+	background-color: #e6EEEE;
+}
+table.tblSorter thead tr th, table.tblSorter tfoot tr th {
+	background-color: #e6EEEE;
 	border: 1px solid #FFF;
 	font-size: 8pt;
 	padding: 4px;
-}
-table.tblSorter tfoot tr th {
-	background-color: #E3F3FF;
 }
 table.tblSorter thead tr .header {
 	background-image: url('../images/bg.gif');
@@ -23,9 +23,6 @@ table.tblSorter thead tr .header {
 	cursor: pointer;
 	padding-right:10px;
 }
-table.tblSorter tbody tr:hover td {
-	background-color:#F3FAFD;
-}
 table.tblSorter tbody td {
 	color: #3D3D3D;
 	padding: 4px;
@@ -33,10 +30,10 @@ table.tblSorter tbody td {
 	vertical-align: top;
 }
 table.tblSorter tbody tr.even td {
-
+	background-color:#FFF;
 }
 table.tblSorter tbody tr.odd td {
-
+	background-color:#F0F0F6;
 }
 table.tblSorter thead tr .headerSortUp {
 	background-image: url('../images/desc.gif');
@@ -45,10 +42,10 @@ table.tblSorter thead tr .headerSortDown {
 	background-image: url('../images/asc.gif');
 }
 table.tblSorter thead tr .headerSortDown, table.tblSorter thead tr .headerSortUp {
-	background-color: #88c0eb;
+	background-color: #8dbdd8;
 }
 table.tblSorter tfoot tr {
-	background-color: #BCD9E8;
+	background-color: #e6EEEE;
 }
 .pagedisplay {
 	color: #216fd8;

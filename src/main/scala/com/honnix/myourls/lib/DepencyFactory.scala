@@ -24,8 +24,6 @@ import net.liftweb._
 import http._
 import mongodb.record.MongoMetaRecord
 import util._
-import common._
-import _root_.java.util.Date
 
 import model.ShortenedUrl
 
@@ -56,31 +54,6 @@ object DependencyFactory extends Factory {
 
   init()
 }
-
-/*
-/**
- * Examples of changing the implementation
- */
-sealed abstract class Changer {
-  def changeDefaultImplementation() {
-    DependencyFactory.time.default.set(() => new Date())
-  }
-
-  def changeSessionImplementation() {
-    DependencyFactory.time.session.set(() => new Date())
-  }
-
-  def changeRequestImplementation() {
-    DependencyFactory.time.request.set(() => new Date())
-  }
-
-  def changeJustForCall(d: Date) {
-    DependencyFactory.time.doWith(d) {
-      // perform some calculations here
-    }
-  }
-}
-*/
 
 }
 
