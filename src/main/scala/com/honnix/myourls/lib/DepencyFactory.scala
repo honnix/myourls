@@ -24,8 +24,7 @@ import net.liftweb._
 import http._
 import mongodb.record.MongoMetaRecord
 import util._
-
-import model.ShortenedUrl
+import model.{NextId, ShortenedUrl}
 
 /**
  * A factory for generating new instances of Date.  You can create
@@ -35,11 +34,15 @@ import model.ShortenedUrl
  * stack basis.
  */
 object DependencyFactory extends Factory {
-  type MetaRecord = MongoMetaRecord[ShortenedUrl]
+  type ShortenedUrlMetaRecord = MongoMetaRecord[ShortenedUrl]
+
+  type NextIdMetaRecord = MongoMetaRecord[NextId]
 
   implicit object time extends FactoryMaker(Helpers.now _)
 
-  implicit object shortenedUrl extends FactoryMaker(() => ShortenedUrl.asInstanceOf[MetaRecord])
+  implicit object shortenedUrl extends FactoryMaker(() => ShortenedUrl.asInstanceOf[ShortenedUrlMetaRecord])
+
+  implicit object nextId extends FactoryMaker(() => NextId.asInstanceOf[NextIdMetaRecord])
 
 
   /**
@@ -49,7 +52,7 @@ object DependencyFactory extends Factory {
    * registering their types with the dependency injector
    */
   private def init() {
-    List(time, shortenedUrl)
+    List(time, shortenedUrl, nextId)
   }
 
   init()

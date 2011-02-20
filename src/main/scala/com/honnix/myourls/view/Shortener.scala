@@ -28,7 +28,7 @@ import net.liftweb.common.Loggable
 import model.ShortenedUrl
 import constant.SystemConstant.AdminPageUrl
 import lib.DependencyFactory
-import lib.DependencyFactory.MetaRecord
+import lib.DependencyFactory.ShortenedUrlMetaRecord
 
 /**
  * Shortener view who does the real job.
@@ -40,7 +40,7 @@ class Shortener extends LiftView with Loggable {
     case id: String if id.matches("\\w+") =>
       import net.liftweb.json.JsonDSL._
       logger.debug("linkId is [" + id + "]")
-      val record = DependencyFactory.inject[MetaRecord].open_!.find(ShortenedUrl.linkId.name -> id)
+      val record = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!.find(ShortenedUrl.linkId.name -> id)
 
       logger.debug("record is [" + record + "]")
       val url = if (record.isDefined) record.open_!.originUrl.value else AdminPageUrl

@@ -22,7 +22,7 @@ input, textarea {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
 }
-Input.text, select, textarea {
+input.text, select, textarea {
 	font-family: Verdana, Arial;
 	font-size: 10px;
 	color: #595441;
@@ -72,7 +72,7 @@ tr.edit-row  td {
 #new_url_form {
 	padding:4px;
 }
-#new_url #feedback {
+#new_url #lift__noticesContainer___notice {
 	background:#ff8;
 	color:#8DBDD8;
 	width:50%;
@@ -80,7 +80,11 @@ tr.edit-row  td {
 	padding:2px;
 	border:1px solid #ff8;
 }
-#new_url #feedback .fail {
+#new_url #lift__noticesContainer___notice ul {
+    margin:0px;
+    list-style-type: none;
+}
+#new_url #lift__noticesContainer___notice .fail {
 	color:#f55;
 }
 td.actions input{

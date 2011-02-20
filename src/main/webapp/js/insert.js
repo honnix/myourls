@@ -1,8 +1,6 @@
 // Init some stuff
 $(document).ready(function(){
-	$('#add-url, #add-keyword').keyup(function(e){ if (e.keyCode == 13) {add();} } );
 	reset_url();
-	$('#new_url_form').attr('action', 'javascript:add();');
 	if ($("#tblUrl tr.nourl_found").length != 1) {
 		$("#tblUrl").tablesorter({
 			sortList:[[3,1]], // Sort on column #3 (numbering starts at 0)
@@ -12,31 +10,15 @@ $(document).ready(function(){
 	}
 });
 
-// Create new link and add to table
-function add() {
+// Before submitting form, do validation
+function validate() {
 	var newurl = $("#add-url").val();
 	if ( !newurl || newurl == 'http://' || newurl == 'https://' ) {
 		alert('no URL ?');
-		return;
+		return false;
 	}
-	var keyword = $("#add-keyword").val();
 	add_loading("#add-button");
-	$.getJSON(
-		"index_ajax.php",
-		{mode:'add', url: newurl, keyword: keyword},
-		function(data){
-			if(data.status == 'success') {
-				$('#tblUrl tbody').prepend( data.html ).trigger("update");
-				$('.nourl_found').remove();
-				zebra_table();
-				reset_url();
-				increment();
-			}
-			feedback(data.message, data.status);
-			end_loading("#add-button");
-			end_disable("#add-button");
-		}
-	);
+	return true;
 }
 
 // Display the edition interface
@@ -142,21 +124,9 @@ function zebra_table() {
 	$('#tblUrl tbody').trigger("update");
 }
 
-// Update feedback message
-function feedback(msg, type) {
-	var span = (type == 'fail') ? '<span class="fail">' : '<span>' ;
-	var delay = (type == 'fail') ? 2500 : 1000 ;
-	$('#feedback').html(span + msg + '</span>').fadeIn(200,function(){
-		$(this).animate({'opacity':1}, delay, function() {
-			$(this).fadeOut(800);
-		})
-	});
-}
-
 // Ready to add another URL
 function reset_url() {
 	$('#add-url').val('http://').focus();
-	$('#add-keyword').val('');
 }
 
 // Increment URL counters

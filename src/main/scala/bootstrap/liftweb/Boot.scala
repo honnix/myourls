@@ -20,6 +20,7 @@
 package bootstrap.liftweb
 
 import net.liftweb.util._
+import Helpers._
 import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.http.provider._
@@ -76,6 +77,9 @@ class Boot {
 
     // define resource bundle base name 
     LiftRules.resourceNames = List(ProductName)
+
+    // notice
+    LiftRules.noticesAutoFadeOut.default.set((noticeType: NoticeType.Value) => Full((1 seconds, 2 seconds)))
 
     LiftRules.early.append(makeUtf8)
   }
