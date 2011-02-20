@@ -60,6 +60,13 @@ class Admin extends Loggable {
 
   def filter = null
 
+  def info = {
+    val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
+
+    ".from" #> 0.toString & ".to" #> 0.toString & ".total" #> shortenedUrl.count.toString &
+            ".links" #> shortenedUrl.count.toString & ".clicks" #> 0.toString
+  }
+
   def list = {
     val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
@@ -74,7 +81,7 @@ class Admin extends Loggable {
           <td>{x.date.value}</td>
           <td>{x.ip.value}</td>
           <td>{x.clickCount.value}</td>
-          <td>
+          <td class="actions">
               <input type="button" value="Edit" class="button"/>
               <input type="button" value="Del" class="button"/>
           </td>
