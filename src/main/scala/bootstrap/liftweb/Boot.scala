@@ -29,6 +29,8 @@ import net.liftweb.sitemap.Loc._
 import net.liftweb.mongodb._
 
 import com.honnix.myourls.constant.SystemConstant._
+import com.honnix.myourls.lib.DependencyFactory
+import com.honnix.myourls.lib.NextIdGenerator
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -37,6 +39,14 @@ import com.honnix.myourls.constant.SystemConstant._
  * @author honnix
  */
 class Boot {
+  private def makeUtf8(req: HTTPRequest) {
+    req.setCharacterEncoding("UTF-8")
+  }
+
+  private def addUnloadHooks {
+    LiftRules.unloadHooks.append(() => DependencyFactory.inject[NextIdGenerator].open_! ! 'exit)
+  }
+
   def boot {
     // define mongodb connection
     MongoDB.defineDb(DefaultMongoIdentifier,
@@ -47,25 +57,13 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("com.honnix.myourls")
 
-    // Build SiteMap
+    // build SiteMap
     def sitemap() = SiteMap(
       Menu("admin", "Admin") / "index",
       Menu(Loc("shortener", Link(List("shortener"), true, ""),
         "Shortener", Hidden)))
 
     LiftRules.setSiteMapFunc(sitemap _)
-
-    /*
-     * Show the spinny image when an Ajax call starts
-     */
-    LiftRules.ajaxStart =
-            Full(() => LiftRules.jsArtifacts.show("ajax-loader").cmd)
-
-    /*
-     * Make the spinny image go away when it ends
-     */
-    LiftRules.ajaxEnd =
-            Full(() => LiftRules.jsArtifacts.hide("ajax-loader").cmd)
 
     /*
      * Rewrite http://server/<id> to http://server/shortener/<id>
@@ -81,13 +79,9 @@ class Boot {
     // notice
     LiftRules.noticesAutoFadeOut.default.set((noticeType: NoticeType.Value) => Full((1 seconds, 2 seconds)))
 
-    LiftRules.early.append(makeUtf8)
-  }
+    // start next id generator
+    DependencyFactory.inject[NextIdGenerator].open_!.start
 
-  /**
-   * Force the request to be UTF-8
-   */
-  private def makeUtf8(req: HTTPRequest) {
-    req.setCharacterEncoding("UTF-8")
+    LiftRules.early.append(makeUtf8)
   }
 }

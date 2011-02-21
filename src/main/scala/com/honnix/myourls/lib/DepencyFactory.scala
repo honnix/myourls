@@ -38,11 +38,11 @@ object DependencyFactory extends Factory {
 
   type NextIdMetaRecord = MongoMetaRecord[NextId]
 
-  implicit object time extends FactoryMaker(Helpers.now _)
-
   implicit object shortenedUrl extends FactoryMaker(() => ShortenedUrl.asInstanceOf[ShortenedUrlMetaRecord])
 
   implicit object nextId extends FactoryMaker(() => NextId.asInstanceOf[NextIdMetaRecord])
+
+  implicit object nextIdGenerator extends FactoryMaker(() => DefaultNextIdGenerator.asInstanceOf[NextIdGenerator])
 
 
   /**
@@ -52,7 +52,7 @@ object DependencyFactory extends Factory {
    * registering their types with the dependency injector
    */
   private def init() {
-    List(time, shortenedUrl, nextId)
+    List(shortenedUrl, nextId, nextIdGenerator)
   }
 
   init()

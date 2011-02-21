@@ -15,27 +15,14 @@ import net.liftweb.common.Loggable
 import model.{NextId, ShortenedUrl}
 
 import lib.DependencyFactory
-import lib.DependencyFactory.{NextIdMetaRecord, ShortenedUrlMetaRecord}
+import lib.DependencyFactory.ShortenedUrlMetaRecord
+import lib.NextIdGenerator
 
 class Admin extends Loggable {
   val currentShortenedUrl = ShortenedUrl.createRecord.date(new Date)
 
   def add = {
     def save: JsCmd = {
-      def generateId = {
-        val nextId = DependencyFactory.inject[NextIdMetaRecord].open_!
-        val id = nextId.findAll
-        if (id.isEmpty) {
-          nextId.createRecord.next("2").save
-          "1"
-        } else {
-          val record = id.head
-          val newId = record.next.value
-          record.next((Integer.parseInt(newId, 16) + 1).toHexString.toUpperCase).save
-          newId
-        }
-      }
-
       val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
       import net.liftweb.json.JsonDSL._
@@ -43,8 +30,8 @@ class Admin extends Loggable {
       if (shortenedUrl.find(ShortenedUrl.originUrl.name -> currentShortenedUrl.originUrl.value).isDefined)
         notice(currentShortenedUrl.originUrl.value + " already exists in database")
       else {
-        val linkId = generateId
-        currentShortenedUrl.linkId(linkId).shortUrl("http://localhost/" + linkId).clickCount(0).save
+        val linkId = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
+        currentShortenedUrl.linkId(linkId).shortUrl(Props.get("site").open_! + "/" + linkId).clickCount(0).save
         notice(currentShortenedUrl.originUrl.value + " added to database")
       }
 
@@ -76,8 +63,12 @@ class Admin extends Loggable {
       "tr" #> shortenedUrl.findAll.map(x => {
         <tr>
           <td>{x.linkId.value}</td>
-          <td>{x.originUrl.value}</td>
-          <td>{x.shortUrl.value}</td>
+          <td>
+            <a href={x.originUrl.value}>{x.originUrl.value}</a>
+          </td>
+          <td>
+            <a href={x.shortUrl.value}>{x.shortUrl.value}</a>
+          </td>
           <td>{x.date.value}</td>
           <td>{x.ip.value}</td>
           <td>{x.clickCount.value}</td>
