@@ -43,7 +43,11 @@ class Shortener extends LiftView with Loggable {
       val record = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!.find(ShortenedUrl.linkId.name -> id)
 
       logger.debug("record is [" + record + "]")
-      val url = if (record.isDefined) record.open_!.originUrl.value else AdminPageUrl
+      val url = if (record.isDefined) {
+        val openedRecord = record.open_!
+        openedRecord.clickCount(openedRecord.clickCount.value + 1).save
+        openedRecord.originUrl.value
+      } else AdminPageUrl
       redirectTo(url)
     case _ => redirectTo(AdminPageUrl)
   }

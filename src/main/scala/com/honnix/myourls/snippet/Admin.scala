@@ -31,7 +31,8 @@ class Admin extends Loggable {
         notice(currentShortenedUrl.originUrl.value + " already exists in database")
       else {
         val linkId = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
-        currentShortenedUrl.linkId(linkId).shortUrl(Props.get("site").open_! + "/" + linkId).clickCount(0).save
+        currentShortenedUrl.linkId(linkId).shortUrl(Props.get("site").open_! + "/" + linkId).
+                ip(containerRequest.open_!.remoteAddress).clickCount(0).save
         notice(currentShortenedUrl.originUrl.value + " added to database")
       }
 
