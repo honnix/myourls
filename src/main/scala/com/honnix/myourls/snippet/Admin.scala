@@ -9,7 +9,6 @@ import JsCmds._
 import JE._
 import net.liftweb.util._
 import SHtml._
-import ElemAttr._
 import Helpers._
 import java.util.Date
 import net.liftweb.common.Loggable
