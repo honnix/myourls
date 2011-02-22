@@ -38,21 +38,10 @@ function edit(id) {
 }
 
 // Delete a link
-function remove(id) {
-	if (!confirm('Really delete?')) {
-		return;
+function remove(server) {
+	if (confirm('Really delete?')) {
+		server();
 	}
-	$.getJSON(
-		"index_ajax.php",
-		{ mode: "delete", id: id },
-		function(data){
-			if (data.success == 1) {
-				$("#id-" + id).fadeOut(function(){$(this).remove();zebra_table();});
-			} else {
-				alert('something wrong happened while deleting :/');
-			}
-		}
-	);
 }
 
 // Cancel edition of a link
