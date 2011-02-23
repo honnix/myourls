@@ -75,18 +75,20 @@ class Admin extends Loggable {
 
       import net.liftweb.json.JsonDSL._
 
-      if (shortenedUrl.find(ShortenedUrl.originUrl.name -> currentShortenedUrl.originUrl.value).isDefined)
+      val cmd = if (shortenedUrl.find(ShortenedUrl.originUrl.name -> currentShortenedUrl.originUrl.value).isDefined) {
         notice(currentShortenedUrl.originUrl.value + " already exists in database")
+        _Noop
+      }
       else {
         val linkId = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
         currentShortenedUrl.linkId(linkId).shortUrl(Props.get("site").open_! + "/" + linkId).
                 ip(containerRequest.open_!.remoteAddress).clickCount(0).save
         notice(currentShortenedUrl.originUrl.value + " added to database")
+        PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
+                FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second)
       }
 
-      PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
-              FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second) &
-              Call("end_loading", "#add-button") &
+      cmd & Call("end_loading", "#add-button") &
               Call("end_disable", "#add-button")
     }
 
@@ -94,6 +96,7 @@ class Admin extends Loggable {
             "#add-button" #> ajaxSubmit("Shorten The URL", save _) andThen {
       "form" #> ((ns: NodeSeq) => ajaxForm(JsIf(JsEq(Call("validate"), JsFalse), JsReturn(false)), ns))
     }
+
   }
 
   def filter = null
