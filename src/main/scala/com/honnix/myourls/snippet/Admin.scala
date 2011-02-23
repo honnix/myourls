@@ -4,7 +4,7 @@ package snippet {
 import net.liftweb.http._
 import S._
 import js._
-import js.jquery.JqJsCmds.FadeOut
+import js.jquery.JqJsCmds.{FadeOut, PrependHtml, Hide, FadeIn}
 import JsCmds._
 import JE._
 import net.liftweb.util._
@@ -33,7 +33,7 @@ class Admin extends Loggable {
                onclick={deferCall(Str(name + "=true"), jsFunc).toJsCmd + "; return false;"}/>))(_ % _)
   }
 
-  private def outputLine(shortenedUrl: ShortenedUrl) = {
+  private def generateRow(shortenedUrl: ShortenedUrl) = {
     def delete(record: ShortenedUrl) = {
       record.delete_!
       new FadeOut(record.id.toString, 0 second, 1 second)
@@ -84,7 +84,9 @@ class Admin extends Loggable {
         notice(currentShortenedUrl.originUrl.value + " added to database")
       }
 
-      Call("end_loading", "#add-button") &
+      PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
+              FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second) &
+              Call("end_loading", "#add-button") &
               Call("end_disable", "#add-button")
     }
 
@@ -109,7 +111,7 @@ class Admin extends Loggable {
     if (shortenedUrl.count == 0) {
       "tr [class]" #> "nourl_found"
     } else {
-      "tr" #> shortenedUrl.findAll.map(outputLine)
+      "tr" #> shortenedUrl.findAll.map(generateRow)
     }
   }
 }
