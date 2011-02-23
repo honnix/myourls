@@ -17,10 +17,57 @@ import model.ShortenedUrl
 import lib.DependencyFactory
 import lib.DependencyFactory.ShortenedUrlMetaRecord
 import lib.NextIdGenerator
-import xml.{Elem, Text, NodeSeq}
+import xml.{Elem, Text, NodeSeq, MetaData, UnprefixedAttribute, Null}
 
 class Admin extends Loggable {
   val currentShortenedUrl = ShortenedUrl.createRecord.date(new Date)
+
+  private implicit def pairToMetaData(int: (String, String)) = new UnprefixedAttribute(int._1, int._2, Null)
+
+  private def ajaxInputButton(text: NodeSeq, jsFunc: Call, func: () => JsCmd, attrs: MetaData*): Elem = {
+    def deferCall(data: JsExp, jsFunc: Call): Call =
+      Call(jsFunc.function, (jsFunc.params ++ List(AnonFunc(makeAjaxCall(data)))): _*)
+
+    attrs.foldLeft(fmapFunc(contextFuncBuilder(func))(name =>
+        <input type="button" value={text}
+               onclick={deferCall(Str(name + "=true"), jsFunc).toJsCmd + "; return false;"}/>))(_ % _)
+  }
+
+  private def outputLine(shortenedUrl: ShortenedUrl) = {
+    def delete(record: ShortenedUrl) = {
+      record.delete_!
+      new FadeOut(record.id.toString, 0 second, 1 second)
+    }
+
+    <tr id={shortenedUrl.id.toString}>
+      <td>
+        {shortenedUrl.linkId.value}
+      </td>
+      <td>
+        <a href={shortenedUrl.originUrl.value}>
+          {shortenedUrl.originUrl.value}
+        </a>
+      </td>
+      <td>
+        <a href={shortenedUrl.shortUrl.value}>
+          {shortenedUrl.shortUrl.value}
+        </a>
+      </td>
+      <td>
+        {shortenedUrl.date.value}
+      </td>
+      <td>
+        {shortenedUrl.ip.value}
+      </td>
+      <td>
+        {shortenedUrl.clickCount.value}
+      </td>
+      <td class="actions">
+        {ajaxInputButton(Text("Edit"), Call("edit"), () => delete(shortenedUrl), "class" -> "button") ++ Text(" ") ++
+              ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl), "class" -> "button")}
+      </td>
+    </tr>
+  }
 
   def add = {
     def save: JsCmd = {
@@ -57,42 +104,12 @@ class Admin extends Loggable {
   }
 
   def list = {
-    def delete(record: ShortenedUrl) = {
-      record.delete_!
-      new FadeOut(record.id.toString, 0 second, 1 second)
-    }
-
-    def ajaxInputButton(text: NodeSeq, jsFunc: Call, func: () => JsCmd): Elem = {
-      def deferCall(data: JsExp, jsFunc: Call): Call =
-        Call(jsFunc.function, (jsFunc.params ++ List(AnonFunc(makeAjaxCall(data)))): _*)
-
-      fmapFunc(contextFuncBuilder(func))(name =>
-          <input class="button" type="button" value={text} onclick={deferCall(Str(name + "=true"), jsFunc).toJsCmd + "; return false;"}/>)
-    }
-
     val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
     if (shortenedUrl.count == 0) {
       "tr [class]" #> "nourl_found"
     } else {
-      "tr" #> shortenedUrl.findAll.map(x => {
-        <tr id={x.id.toString}>
-          <td>{x.linkId.value}</td>
-          <td>
-            <a href={x.originUrl.value}>{x.originUrl.value}</a>
-          </td>
-          <td>
-            <a href={x.shortUrl.value}>{x.shortUrl.value}</a>
-          </td>
-          <td>{x.date.value}</td>
-          <td>{x.ip.value}</td>
-          <td>{x.clickCount.value}</td>
-          <td class="actions">
-              <input type="button" value="Del" class="button"/>
-            {ajaxInputButton(Text("Del"), Call("remove"), () => delete(x))}
-          </td>
-        </tr>
-      })
+      "tr" #> shortenedUrl.findAll.map(outputLine)
     }
   }
 }
