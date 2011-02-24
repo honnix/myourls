@@ -5,6 +5,7 @@ import net.liftweb.http._
 import S._
 import js._
 import js.jquery.JqJsCmds.{FadeOut, PrependHtml, Hide, FadeIn}
+import js.jquery.JqJE._
 import JsCmds._
 import JE._
 import net.liftweb.util._
@@ -20,7 +21,11 @@ import lib.NextIdGenerator
 import xml.{Elem, Text, NodeSeq, MetaData, UnprefixedAttribute, Null}
 
 class Admin extends Loggable {
-  val currentShortenedUrl = ShortenedUrl.createRecord.date(new Date)
+  object currentShortenedUrlVar extends RequestVar[ShortenedUrl](
+    ShortenedUrl.createRecord.date(new Date)
+  )
+
+  private var currentShortenedUrl: ShortenedUrl = _
 
   private implicit def pairToMetaData(int: (String, String)) = new UnprefixedAttribute(int._1, int._2, Null)
 
@@ -70,7 +75,7 @@ class Admin extends Loggable {
   }
 
   def add = {
-    def save: JsCmd = {
+    def save = {
       val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
       import net.liftweb.json.JsonDSL._
@@ -86,17 +91,20 @@ class Admin extends Loggable {
         notice(currentShortenedUrl.originUrl.value + " added to database")
         PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
                 FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second)
+        //        val func = JsCrVar("func", Jx(generateRow(currentShortenedUrl)).toJs)
+        //        func & Jq(Call("func", "document") ~> JsVal("firstChild")) ~> JsFunc("prependTo", "#tblUrl-body") ~>
+        //                JsFunc("hide") ~> JsFunc("fadeIn", "1000")
       }
 
       cmd & Call("end_loading", "#add-button") &
               Call("end_disable", "#add-button")
     }
 
-    "#add-url" #> text("http://", currentShortenedUrl.originUrl(_)) &
+    "#add-url" #> text("http://", currentShortenedUrlVar.originUrl(_)) &
+            "#current" #> hidden(() => currentShortenedUrl = currentShortenedUrlVar.is) &
             "#add-button" #> ajaxSubmit("Shorten The URL", save _) andThen {
       "form" #> ((ns: NodeSeq) => ajaxForm(JsIf(JsEq(Call("validate"), JsFalse), JsReturn(false)), ns))
     }
-
   }
 
   def filter = null
