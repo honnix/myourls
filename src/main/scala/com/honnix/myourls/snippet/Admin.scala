@@ -25,6 +25,10 @@ class Admin extends Loggable {
     ShortenedUrl.createRecord.date(new Date)
   )
 
+  private val DisplayIdPrefix = "id-"
+
+  private val EditIdPrefix = "edit-"
+
   private var currentShortenedUrl: ShortenedUrl = _
 
   private implicit def pairToMetaData(int: (String, String)) = new UnprefixedAttribute(int._1, int._2, Null)
@@ -38,13 +42,47 @@ class Admin extends Loggable {
                onclick={deferCall(Str(name + "=true"), jsFunc).toJsCmd + "; return false;"}/>))(_ % _)
   }
 
+  private def ajaxInputButton(text: NodeSeq, func: () => JsCmd, attrs: MetaData*): Elem = {
+    attrs.foldLeft(fmapFunc(contextFuncBuilder(func))(name =>
+        <input type="button" value={text}
+               onclick={makeAjaxCall(Str(name + "=true")).toJsCmd + "; return false;"}/>))(_ % _)
+  }
+
   private def generateRow(shortenedUrl: ShortenedUrl) = {
     def delete(record: ShortenedUrl) = {
       record.delete_!
       new FadeOut(record.id.toString, 0 second, 1 second)
     }
 
-    <tr id={shortenedUrl.id.toString}>
+    def edit(record: ShortenedUrl) = {
+      def update(originalUrl: String) = {
+        record.originUrl(originalUrl).save
+        _Noop
+      }
+
+      val urlId = "edit-url-" + shortenedUrl.linkId.value
+      val (name, js) = ajaxCall(ValById(urlId), update)
+
+      val tr = <tr id={EditIdPrefix + shortenedUrl.linkId.value} class="edit-row">
+        <td colspan="6">
+          Edit: <strong>original URL</strong>
+          :
+          <input type="text" id={urlId} name="edit-url" value={shortenedUrl.originUrl.value}
+                 class="text" size="100"></input>
+        </td>
+        <td colspan="1">
+          <input type="button" title="Save new value" value="Save" class="button" onclick={js.toJsCmd}></input>
+          <input type="button" title="Cancel editing" value="X" class="button"
+                 onclick={"hide_edit('" + shortenedUrl.linkId.value + "')"}></input>
+        </td>
+      </tr>
+
+      val func = JsCrVar("func", Jx(tr).toJs)
+      func & Jq(Call("func", "document") ~> JsVal("firstChild")) ~>
+              JsFunc("insertAfter", "#" + DisplayIdPrefix + shortenedUrl.linkId.value)
+    }
+
+    <tr id={DisplayIdPrefix + shortenedUrl.linkId.value}>
       <td>
         {shortenedUrl.linkId.value}
       </td>
@@ -68,13 +106,14 @@ class Admin extends Loggable {
         {shortenedUrl.clickCount.value}
       </td>
       <td class="actions">
-        {ajaxInputButton(Text("Edit"), Call("edit"), () => delete(shortenedUrl), "class" -> "button") ++ Text(" ") ++
+        {ajaxInputButton(Text("Edit"), () => edit(shortenedUrl), "class" -> "button") ++ Text(" ") ++
               ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl), "class" -> "button")}
       </td>
     </tr>
   }
 
   def add = {
+
     def save = {
       val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
