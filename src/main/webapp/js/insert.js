@@ -38,9 +38,9 @@ function edit(id) {
 }
 
 // Delete a link
-function remove(server) {
+function remove(realDelete) {
 	if (confirm('Really delete?')) {
-		server();
+		realDelete();
 	}
 }
 
@@ -77,18 +77,6 @@ function edit_save(id) {
 			end_disable("#delete-button-" + id);
 		}
 	);
-}
-
-// Unused for now since HTTP Auth sucks donkeys.
-function logout() {
-	$.ajax({
-		type: "POST",
-		url: "index_ajax.php",
-		data: {mode:'logout'},
-		success: function() {
-			window.parent.location.href = window.parent.location.href;
-		}
-	});
 }
 
 // Begin the spinning animation & disable a button

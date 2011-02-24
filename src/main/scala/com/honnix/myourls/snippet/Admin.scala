@@ -90,7 +90,8 @@ class Admin extends Loggable {
                 ip(containerRequest.open_!.remoteAddress).clickCount(0).save
         notice(currentShortenedUrl.originUrl.value + " added to database")
         PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
-                FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second)
+                FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second) & Call("reset_url") & Call("zebra_table") &
+                Call("increment")
         //        val func = JsCrVar("func", Jx(generateRow(currentShortenedUrl)).toJs)
         //        func & Jq(Call("func", "document") ~> JsVal("firstChild")) ~> JsFunc("prependTo", "#tblUrl-body") ~>
         //                JsFunc("hide") ~> JsFunc("fadeIn", "1000")
