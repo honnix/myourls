@@ -82,38 +82,25 @@ class Admin extends Loggable {
               JsFunc("insertAfter", "#" + DisplayIdPrefix + shortenedUrl.linkId.value)
     }
 
-    <tr id={DisplayIdPrefix + shortenedUrl.linkId.value}>
-      <td>
-        {shortenedUrl.linkId.value}
-      </td>
-      <td>
-        <a href={shortenedUrl.originUrl.value}>
-          {shortenedUrl.originUrl.value}
-        </a>
-      </td>
-      <td>
-        <a href={shortenedUrl.shortUrl.value}>
-          {shortenedUrl.shortUrl.value}
-        </a>
-      </td>
-      <td>
-        {shortenedUrl.date.value}
-      </td>
-      <td>
-        {shortenedUrl.ip.value}
-      </td>
-      <td>
-        {shortenedUrl.clickCount.value}
-      </td>
-      <td class="actions">
-        {ajaxInputButton(Text("Edit"), () => edit(shortenedUrl), "class" -> "button") ++ Text(" ") ++
-              ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl), "class" -> "button")}
-      </td>
-    </tr>
+    TemplateFinder.findAnyTemplate(List("templates-hidden", "row")) map {
+      x =>
+        "#id *" #> shortenedUrl.linkId.value &
+                "#id [id]" #> (DisplayIdPrefix + shortenedUrl.linkId.value) &
+                "#originUrl *" #> <a href={shortenedUrl.originUrl.value}>{shortenedUrl.originUrl.value}</a> &
+                "#originUrl [id]" #> ("url-" + shortenedUrl.linkId.value) &
+                "#shortUrl *" #> <a href={shortenedUrl.shortUrl.value}>{shortenedUrl.shortUrl.value}</a> &
+                "#date *" #> shortenedUrl.date.value.toString &
+                "#ip *" #> shortenedUrl.ip.value &
+                "#edit-button" #> ajaxInputButton(Text("Edit"), () => edit(shortenedUrl),
+                  "id" -> ("edit-button" + shortenedUrl.linkId.value)) &
+                "#delete-button" #> ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl),
+                  "id" -> ("delete-button" + shortenedUrl.linkId.value)) apply (x \\ "_" filter {
+          _.attribute("id") == Some(Text("content"))
+        })
+    } open_!
   }
 
   def add = {
-
     def save = {
       val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
