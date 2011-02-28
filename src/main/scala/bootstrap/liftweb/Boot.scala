@@ -48,7 +48,6 @@ class Boot {
   }
 
   def boot {
-    // define mongodb connection
     MongoDB.defineDb(DefaultMongoIdentifier,
       MongoAddress(MongoHost(Props.get("db.host") openOr "localhost",
         (Props.get("db.port") openOr "27017").toInt),
@@ -57,7 +56,6 @@ class Boot {
     // where to search snippet
     LiftRules.addToPackages("com.honnix.myourls")
 
-    // build SiteMap
     def sitemap() = SiteMap(
       Menu("admin", "Admin") / "index",
       Menu(Loc("shortener", Link(List("shortener"), true, ""),
@@ -76,10 +74,10 @@ class Boot {
     // define resource bundle base name 
     LiftRules.resourceNames = List(ProductName)
 
-    // notice
-    LiftRules.noticesAutoFadeOut.default.set((noticeType: NoticeType.Value) => Full((1 seconds, 2 seconds)))
+    LiftRules.noticesAutoFadeOut.default.set((x: NoticeType.Value) => Full((1 seconds, 2 seconds)))
 
-    // start next id generator
+    LiftRules.htmlProperties.default.set((x: Req) => new Html5Properties(x.userAgent))
+
     DependencyFactory.inject[NextIdGenerator].open_!.start
 
     LiftRules.early.append(makeUtf8)

@@ -107,7 +107,7 @@ class Admin extends Loggable {
       import net.liftweb.json.JsonDSL._
 
       if (shortenedUrl.find(ShortenedUrl.originUrl.name -> currentShortenedUrl.originUrl.value).isDefined) {
-        notice(currentShortenedUrl.originUrl.value + " already exists in database")
+        warning(currentShortenedUrl.originUrl.value + " already exists in database")
         Call("restore_add_button").cmd
       }
       else {
