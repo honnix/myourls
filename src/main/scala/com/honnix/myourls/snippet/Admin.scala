@@ -80,25 +80,23 @@ class Admin extends Loggable {
     }
 
     TemplateFinder.findAnyTemplate(List("templates-hidden", "row")) map {
-      x =>
-        "#content [id]" #> (IdPrefix + shortenedUrl.linkId.value) &
-                "#id *" #> shortenedUrl.linkId.value &
-                "#id [id]" #> (None: Option[String]) &
-                "#originUrl *" #> <a href={shortenedUrl.originUrl.value}>
-                  {shortenedUrl.originUrl.value}
-                </a> &
-                "#originUrl [id]" #> ("url-" + shortenedUrl.linkId.value) &
-                "#shortUrl *" #> <a href={shortenedUrl.shortUrl.value}>
-                  {shortenedUrl.shortUrl.value}
-                </a> &
-                "#date *" #> shortenedUrl.date.value.toString &
-                "#ip *" #> shortenedUrl.ip.value &
-                "#edit-button" #> ajaxInputButton(Text("Edit"), Call("edit", shortenedUrl.linkId.value), () => edit(shortenedUrl),
-                  "id" -> ("edit-button" + shortenedUrl.linkId.value)) &
-                "#delete-button" #> ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl),
-                  "id" -> ("delete-button" + shortenedUrl.linkId.value)) apply (x \\ "_" filter {
-          _.attribute("id") == Some(Text("content"))
-        })
+      "#real-content ^^" #> "true" andThen
+              "#real-content [id]" #> (IdPrefix + shortenedUrl.linkId.value) &
+                      "#id *" #> shortenedUrl.linkId.value &
+                      "#id [id]" #> (None: Option[String]) &
+                      "#originUrl *" #> <a href={shortenedUrl.originUrl.value}>
+                        {shortenedUrl.originUrl.value}
+                      </a> &
+                      "#originUrl [id]" #> ("url-" + shortenedUrl.linkId.value) &
+                      "#shortUrl *" #> <a href={shortenedUrl.shortUrl.value}>
+                        {shortenedUrl.shortUrl.value}
+                      </a> &
+                      "#date *" #> shortenedUrl.date.value.toString &
+                      "#ip *" #> shortenedUrl.ip.value &
+                      "#edit-button" #> ajaxInputButton(Text("Edit"), Call("edit", shortenedUrl.linkId.value), () => edit(shortenedUrl),
+                        "id" -> ("edit-button-" + shortenedUrl.linkId.value)) &
+                      "#delete-button" #> ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl),
+                        "id" -> ("delete-button-" + shortenedUrl.linkId.value))
     } open_!
   }
 
