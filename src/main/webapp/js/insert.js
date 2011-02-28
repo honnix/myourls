@@ -1,8 +1,10 @@
-$(document).ready(function(){
+$(document).ready(function() {
     reset_url();
     if ($("#tblUrl tr.nourl_found").length != 1) {
         $("#tblUrl").tablesorter({
-            sortList:[[3,1]], // Sort on column #3 (numbering starts at 0)
+            sortList:[
+                [3,1]
+            ], // Sort on column #3 (numbering starts at 0)
             headers: { 6: {sorter: false} }, // no sorter on column #6
             widgets: ["zebra"] // prettify
         });
