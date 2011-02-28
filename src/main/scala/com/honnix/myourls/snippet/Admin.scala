@@ -31,6 +31,10 @@ class Admin extends Loggable {
 
   private val DeletePrefix = "delete-"
 
+  private val RealContentId = "#real-content"
+
+  private val TemplatesHidden = "templates-hidden"
+
   private var currentShortenedUrl: ShortenedUrl = _
 
   private implicit def pairToMetaData(int: (String, String)) = new UnprefixedAttribute(int._1, int._2, Null)
@@ -59,29 +63,25 @@ class Admin extends Loggable {
       val (name, js) = ajaxCall(Call("presave", record.linkId.value), update)
       val urlId = EditPrefix + "url-" + shortenedUrl.linkId.value
 
-      val tr = <tr id={EditPrefix + shortenedUrl.linkId.value} class="edit-row">
-        <td colspan="6">
-          Edit:
-          <strong>original URL</strong>
-          :
-          <input type="text" id={urlId} name={urlId} value={shortenedUrl.originUrl.value}
-                 class="text" size="100"></input>
-        </td>
-        <td colspan="1">
-          <input type="button" id={EditPrefix + "submit-" + shortenedUrl.linkId.value} title="Save new value"
-                 value="Save" class="button" onclick={js.toJsCmd}></input>
-          <input type="button" id={EditPrefix + "close-" + shortenedUrl.linkId.value} title="Cancel editing" value="X" class="button"
-                 onclick={"hide_edit('" + shortenedUrl.linkId.value + "')"}></input>
-        </td>
-      </tr>
+      val tr = TemplateFinder.findAnyTemplate(List(TemplatesHidden, "edit")) map {
+        (RealContentId + " ^^") #> "true" andThen
+                (RealContentId + " [id]") #> (EditPrefix + shortenedUrl.linkId.value) &
+                        "#edit-url [name]" #> urlId &
+                        "#edit-url [value]" #> shortenedUrl.originUrl.value &
+                        "#edit-url [id]" #> urlId &
+                        "#save-button [onclick]" #> js.toJsCmd &
+                        "#save-button [id]" #> (EditPrefix + "submit-" + shortenedUrl.linkId.value) &
+                        "#cancel-button [onclick]" #> ("hide_edit('" + shortenedUrl.linkId.value + "')") &
+                        "#cancel-button [id]" #> (EditPrefix + "close-" + shortenedUrl.linkId.value)
+      } open_!
 
       JsCrVar("func", Jx(tr).toJs) & Jq(Call("func", "document") ~> JsVal("firstChild")) ~>
               JsFunc("insertAfter", "#" + IdPrefix + shortenedUrl.linkId.value) & Focus(urlId)
     }
 
-    TemplateFinder.findAnyTemplate(List("templates-hidden", "row")) map {
-      "#real-content ^^" #> "true" andThen
-              "#real-content [id]" #> (IdPrefix + shortenedUrl.linkId.value) &
+    TemplateFinder.findAnyTemplate(List(TemplatesHidden, "row")) map {
+      (RealContentId + " ^^") #> "true" andThen
+              (RealContentId + " [id]") #> (IdPrefix + shortenedUrl.linkId.value) &
                       "#id *" #> shortenedUrl.linkId.value &
                       "#id [id]" #> (None: Option[String]) &
                       "#originUrl *" #> <a href={shortenedUrl.originUrl.value}>
