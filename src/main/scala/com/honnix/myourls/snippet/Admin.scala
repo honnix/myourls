@@ -51,7 +51,7 @@ class Admin extends Loggable {
   private def generateRow(shortenedUrl: ShortenedUrl) = {
     def delete(record: ShortenedUrl) = {
       record.delete_!
-      FadeOut(record.id.toString, 0 second, 1 second)
+      FadeOut(IdPrefix + record.linkId.value.toString, 0 second, 1 second)
     }
 
     def edit(record: ShortenedUrl) = {
@@ -93,6 +93,7 @@ class Admin extends Loggable {
                       </a> &
                       "#date *" #> shortenedUrl.date.value.toString &
                       "#ip *" #> shortenedUrl.ip.value &
+                      "#clickCount *" #> shortenedUrl.clickCount.value.toString &
                       "#edit-button" #> ajaxInputButton(Text("Edit"), Call("edit", shortenedUrl.linkId.value), () => edit(shortenedUrl),
                         "id" -> ("edit-button-" + shortenedUrl.linkId.value)) &
                       "#delete-button" #> ajaxInputButton(Text("Del"), Call("remove"), () => delete(shortenedUrl),

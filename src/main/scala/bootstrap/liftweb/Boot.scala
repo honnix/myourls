@@ -58,8 +58,7 @@ class Boot {
 
     def sitemap() = SiteMap(
       Menu("admin", "Admin") / "index",
-      Menu(Loc("shortener", Link(List("shortener"), true, ""),
-        "Shortener", Hidden)))
+      Menu("shortener", "Shortener") / "shortener" / **)
 
     LiftRules.setSiteMapFunc(sitemap _)
 
