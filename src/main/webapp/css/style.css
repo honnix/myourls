@@ -84,7 +84,7 @@ tr.edit-row  td {
   background: #fdf !important;
 }
 
-#new_url {
+#new-url {
   text-align: center;
   padding: 1px;
   border: 1px solid #CDCDCD;
@@ -92,16 +92,16 @@ tr.edit-row  td {
   clear: both;
 }
 
-#new_url div {
+#new-url div {
   background: #E6EEEE;
   padding: 4px;
 }
 
-#new_url_form {
+#new-url-form {
   padding: 4px;
 }
 
-#new_url #lift__noticesContainer___notice, #new_url #lift__noticesContainer___warning {
+#new-url #lift__noticesContainer___notice, #new-url #lift__noticesContainer___warning {
   background: #ff8;
   color: #8DBDD8;
   width: 50%;
@@ -110,12 +110,12 @@ tr.edit-row  td {
   border: 1px solid #ff8;
 }
 
-#new_url #lift__noticesContainer___notice ul, #new_url #lift__noticesContainer___warning ul {
+#new-url #lift__noticesContainer___notice ul, #new-url #lift__noticesContainer___warning ul {
   margin: 0px;
   list-style-type: none;
 }
 
-#new_url #lift__noticesContainer___warning li {
+#new-url #lift__noticesContainer___warning li {
   color: #f55;
 }
 
@@ -142,98 +142,4 @@ tr:hover td.actions input {
 #footer {
   margin-top: 2em;
   text-align: center;
-}
-
-#login {
-  width: 210px;
-  margin: 200px auto 0px auto;
-}
-
-#login p {
-  font-weight: bold;
-}
-
-#login .text {
-  width: 100%;
-}
-
-#shareboxes, #tweet {
-  overflow: hidden;
-}
-
-div.share {
-  -moz-border-radius: 5px;
-  border: 2px solid #8DBDD8;
-  background: #fff;
-  margin-right: 1em;
-  padding: 0 1em;
-  float: left;
-  height: 130px;
-}
-
-#copybox {
-  width: 250px;
-}
-
-#sharebox {
-  width: 500px;
-}
-
-#tweet_body {
-  float: left;
-  width: 450px;
-  height: 3em;
-  font-size: 12px;
-}
-
-#charcount {
-  padding-left: 5px;
-  color: #8DBDD8;
-}
-
-#charcount.negative {
-  color: red;
-}
-
-#share_links a {
-  padding: 0 12px 0 18px;
-  font-weight: bold
-}
-
-#share_links a:hover {
-  background-position: 2px center;
-}
-
-#share_tw {
-  background: transparent url(../images/twitter.png) left center no-repeat;
-}
-
-#share_fb {
-  background: transparent url(../images/facebook.png) left center no-repeat;
-}
-
-#share_ff {
-  background: transparent url(../images/friendfeed.png) left center no-repeat;
-}
-
-#tools_desc {
-  width: 550px;
-  zbackground: #ffe;
-  padding-bottom: 10px;
-}
-
-#tools_desc span {
-  background: #ffa;
-  padding: 0 2px;
-}
-
-#tools_desc .bookmarklet {
-  border: 2px solid #2A85B3;
-  -moz-border-radius: 3px;
-  padding: 5px 5px 5px 20px;
-  background: #eef url(../images/favicon.gif) 2px center no-repeat;
-}
-
-#tools_desc .bookmarklet:hover {
-  text-decoration: none;
 }

@@ -26,7 +26,7 @@
   clicks, and counting!
 </p>
 
-<div id="new_url">
+<div id="new-url">
   <div>
     <form id="new-url-form" class="lift:admin.add">
       <strong>Enter the URL</strong>:<input type="text" id="add-url" name="url" value="http://" class="text"
@@ -55,55 +55,53 @@
   <tfoot>
   <tr>
     <th colspan="4" style="text-align: left;">
-      <form>
+      <form class="lift:admin.filter?form=get">
         <div>
           <div style="float:right;">
             <input type="submit" id="submit-sort" value="Filter" class="button primary" />
             &nbsp;
-            <input type="button" id="submit-clear-filter" value="Clear Filter" class="button"
-                   onclick="window.parent.location.href = 'index.php'" />
+            <input type="button" id="submit-clear-filter" value="Clear Filter" class="button" />
           </div>
           Search&nbsp;for&nbsp;
-          <input type="text" name="s_search" class="text" size="20" value="" />
+          <input type="text" id="sort-search" class="text" size="20" value="" />
           &nbsp;in&nbsp;
-          <select name="s_in" size="1">
-            <!-- <option value="id">ID</option> -->
+          <select id="sort-in" size="1">
             <option value="url" selected="selected">URL</option>
             <option value="ip">IP</option>
           </select>
           &ndash;&nbsp;Order&nbsp;by&nbsp;
-          <select name="s_by" size="1">
+          <select id="sort-by" size="1">
             <option value="id" selected="selected">ID</option>
             <option value="url">URL</option>
             <option value="timestamp">Date</option>
             <option value="ip">IP</option>
             <option value="clicks">Clicks</option>
           </select>
-          <select name="s_order" size="1">
+          <select id="sort-order" size="1">
             <option value="asc">Ascending</option>
             <option value="desc" selected="selected">Descending</option>
           </select>
           &ndash;&nbsp;Show&nbsp;
-          <input type="text" name="perpage" class="text" size="2" value="10" />&nbsp;rows<br />
+          <input type="text" id="perpage" class="text" size="2" value="10" />&nbsp;rows<br />
 
           Show links with
-          <select name="link_filter" size="1">
+          <select id="link-filter" size="1">
             <option value="more">more</option>
             <option value="less">less</option>
           </select>
           than
-          <input type="text" name="link_limit" class="text" size="4" value="" />clicks
+          <input type="text" id="link-limit" class="text" size="4" value="" />clicks
         </div>
       </form>
     </th>
     <th colspan="3" style="text-align: right;">
-      Pages (0):
+      Pages (<span id="total-page">0</span>):
     </th>
   </tr>
   </tfoot>
 
   <tbody id="tblUrl-body">
-  <tr class="nourl_found lift:admin.list">
+  <tr class="nourl-found lift:admin.list">
     <td colspan="7">No URL Found</td>
   </tr>
   </tbody>

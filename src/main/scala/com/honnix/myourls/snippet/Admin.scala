@@ -128,7 +128,10 @@ class Admin extends Loggable {
     }
   }
 
-  def filter = null
+  def filter = {
+    "#sort-search" #> text("...", println)
+  }
+
 
   def info = {
     val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
