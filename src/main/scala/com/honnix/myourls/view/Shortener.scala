@@ -22,7 +22,6 @@ package view {
 
 import net.liftweb.http.LiftView
 import net.liftweb.http.S._
-import net.liftweb.mongodb.record.MongoMetaRecord
 import net.liftweb.common.Loggable
 
 import model.ShortenedUrl

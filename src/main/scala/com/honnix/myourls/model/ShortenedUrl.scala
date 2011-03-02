@@ -41,15 +41,14 @@ class ShortenedUrl extends MongoRecord[ShortenedUrl] with MongoId[ShortenedUrl] 
 }
 
 object ShortenedUrl extends ShortenedUrl with MongoMetaRecord[ShortenedUrl]
-  
+
 class NextId extends MongoRecord[NextId] with MongoId[NextId] {
   def meta = NextId
-  
+
   object next extends StringField(this, 10)
 }
-  
-object NextId extends NextId with MongoMetaRecord[NextId]
 
+object NextId extends NextId with MongoMetaRecord[NextId]
 }
 
 }
