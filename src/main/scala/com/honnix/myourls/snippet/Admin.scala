@@ -144,7 +144,7 @@ class Admin extends Loggable {
     val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
     if (shortenedUrl.count == 0) {
-      "tr [class]" #> "nourl_found"
+      "tr ^^" #> "true"
     } else {
       "tr" #> shortenedUrl.findAll.map(generateRow)
     }
