@@ -87,6 +87,5 @@ function postsave(id) {
     var url = $("#edit-url-" + id).val();
     $("#url-" + id).html('<a href="' + url + '">' + url + '</a>');
     remove_loading("#edit-close-" + id);
-    remove_loading("#delete-button-" + id);
     hide_edit(id);
 }

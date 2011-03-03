@@ -40,7 +40,7 @@
 </div>
 
 
-<table id="tblUrl" class="tblSorter" cellpadding="0" cellspacing="1">
+<table id="tblUrl" class="tblSorter lift:admin.list" cellpadding="0" cellspacing="1">
   <thead>
   <tr>
     <th>Link&nbsp;ID&nbsp;&nbsp;</th>
@@ -55,53 +55,60 @@
   <tfoot>
   <tr>
     <th colspan="4" style="text-align: left;">
-      <form class="lift:admin.filter?form=get">
+      <form method="get">
         <div>
           <div style="float:right;">
             <input type="submit" id="submit-sort" value="Filter" class="button primary" />
             &nbsp;
-            <input type="button" id="submit-clear-filter" value="Clear Filter" class="button" />
+            <input type="button" id="submit-clear-filter" value="Clear Filter" class="button"
+                   onclick="window.parent.location.href='/'" />
           </div>
           Search&nbsp;for&nbsp;
-          <input type="text" id="sort-search" class="text" size="20" value="" />
+          <input type="text" name="sort-search" class="text" size="20" value="" />
           &nbsp;in&nbsp;
-          <select id="sort-in" size="1">
+          <select name="sort-in" size="1">
             <option value="url" selected="selected">URL</option>
             <option value="ip">IP</option>
           </select>
           &ndash;&nbsp;Order&nbsp;by&nbsp;
-          <select id="sort-by" size="1">
+          <select name="sort-by" size="1">
             <option value="id" selected="selected">ID</option>
             <option value="url">URL</option>
             <option value="timestamp">Date</option>
             <option value="ip">IP</option>
             <option value="clicks">Clicks</option>
           </select>
-          <select id="sort-order" size="1">
+          <select name="sort-order" size="1">
             <option value="asc">Ascending</option>
             <option value="desc" selected="selected">Descending</option>
           </select>
           &ndash;&nbsp;Show&nbsp;
-          <input type="text" id="perpage" class="text" size="2" value="10" />&nbsp;rows<br />
+          <input type="text" name="perpage" class="text" size="2" value="10" />&nbsp;rows<br />
 
           Show links with
-          <select id="link-filter" size="1">
+          <select name="link-filter" size="1">
             <option value="more">more</option>
             <option value="less">less</option>
           </select>
           than
-          <input type="text" id="link-limit" class="text" size="4" value="" />clicks
+          <input type="text" name="link-limit" class="text" size="4" value="" />clicks
         </div>
       </form>
     </th>
     <th colspan="3" style="text-align: right;">
-      Pages (<span id="total-page">0</span>):
+      Pages (<span id="total-pages">3</span>):
+      <span id="paging">
+        <strong>[1]</strong>
+        <a href="/" title="Page 2">2</a>
+        <a href="/" title="Page 3">3</a>
+        <b><a href="/" title="Go to Page 2 »">»</a></b>
+      </span>
     </th>
   </tr>
   </tfoot>
 
   <tbody id="tblUrl-body">
-  <tr class="nourl-found lift:admin.list">
+  <tr class="nourl-found">
     <td colspan="7">No URL Found</td>
   </tr>
   </tbody>

@@ -128,10 +128,6 @@ class Admin extends Loggable {
     }
   }
 
-  def filter = {
-    "#sort-search" #> text("...", println)
-  }
-
 
   def info = {
     val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
@@ -144,9 +140,25 @@ class Admin extends Loggable {
     val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
     if (shortenedUrl.count == 0) {
-      "tr ^^" #> "true"
+      ".nourl-found ^^" #> "true"
     } else {
-      "tr" #> shortenedUrl.findAll.map(generateRow)
+      val sortSearch = S.param("sort-search")
+      val sortIn = S.param("sort-in")
+      val sortBy = S.param("sort-by")
+      val sortOrder = S.param("sort-order")
+      val perpage = S.param("perpage")
+      val linkFiler = S.param("link-filter")
+      val linkLimit = S.param("link-limit")
+      logger.debug {
+        "sort-search: " + sortSearch + "\n" +
+                "sortin: " + sortIn + "\n" +
+                "sort-by: " + sortBy + "\n" +
+                "sort-order: " + sortOrder + "\n" +
+                "perpage: " + perpage + "\n" +
+                "link-filter: " + linkFiler + "\n" +
+                "link-limit: " + linkLimit + "\n"
+      }
+      ".nourl-found" #> shortenedUrl.findAll.map(generateRow)
     }
   }
 }
