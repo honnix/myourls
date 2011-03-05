@@ -11,6 +11,7 @@ import JE._
 import net.liftweb.util._
 import SHtml._
 import Helpers._
+import net.liftweb.json.JsonDSL._
 import java.util.Date
 import net.liftweb.common.Loggable
 import model.ShortenedUrl
@@ -19,10 +20,50 @@ import lib.DependencyFactory
 import lib.DependencyFactory.ShortenedUrlMetaRecord
 import lib.NextIdGenerator
 import xml.{Elem, Text, NodeSeq, MetaData, UnprefixedAttribute, Null}
+import net.liftweb.json.JsonAST.JObject
+import net.liftweb.mongodb.{Limit, Skip, FindOption}
 
 class Admin extends Loggable {
+  val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
+
   object currentShortenedUrlVar extends RequestVar[ShortenedUrl](
-    ShortenedUrl.createRecord.date(new Date)
+    shortenedUrl.createRecord.date(new Date)
+  )
+
+  object page extends RequestVar[Int](S.param("page").openOr("1").toInt)
+
+  object perpage extends RequestVar[Int](S.param("perpage").openOr("10").toInt)
+
+  object offset extends RequestVar[Int]((page - 1) * perpage)
+
+  object search extends RequestVar[String](S.param("search").openOr(""))
+
+  object searchIn extends RequestVar[String](S.param("search-in").openOr(ShortenedUrl.originUrl.name))
+
+  object sortBy extends RequestVar[String](S.param("sort-by").openOr(ShortenedUrl.linkId.name))
+
+  object sortOrder extends RequestVar[Int](S.param("sort-order").openOr("-1").toInt)
+
+  object clickFilter extends RequestVar[String](S.param("click-filter").openOr("gte"))
+
+  object clickLimit extends RequestVar[String](S.param("click-limit").openOr(""))
+
+  object clickObject extends RequestVar[JObject](
+    if (clickLimit.isEmpty) JObject(Nil)
+    else (ShortenedUrl.clickCount.name -> (("$" + clickFilter) -> clickLimit.is.toInt))
+  )
+
+  object searchObject extends RequestVar[JObject](
+    if (search.isEmpty) JObject(Nil)
+    else ("$where" -> ("this." + ShortenedUrl.originUrl.name + ".indexOf('" + search + "') != -1"))
+  )
+
+  object findOptions extends RequestVar[List[FindOption]](
+    List(Skip(offset), Limit(perpage))
+  )
+
+  object totalItems extends RequestVar[Long](
+    shortenedUrl.count(clickObject.is ~ searchObject.is)
   )
 
   private val IdPrefix = "id-"
@@ -103,10 +144,6 @@ class Admin extends Loggable {
 
   def add = {
     def save = {
-      val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
-
-      import net.liftweb.json.JsonDSL._
-
       if (shortenedUrl.find(ShortenedUrl.originUrl.name -> currentShortenedUrl.originUrl.value).isDefined) {
         warning(currentShortenedUrl.originUrl.value + " already exists in database")
         Call("restore_add_button").cmd
@@ -128,38 +165,34 @@ class Admin extends Loggable {
     }
   }
 
+  def info = ".from" #> (if (offset.is + 1 > totalItems) totalItems else offset.is + 1).toString &
+          ".to" #> (if (offset.is + perpage > totalItems) totalItems else offset.is + perpage).toString &
+          ".total" #> totalItems.toString &
+          ".links" #> shortenedUrl.count.toString &
+          ".clicks" #> shortenedUrl.findAll.foldLeft(0)(_ + _.clickCount.value).toString
 
-  def info = {
-    val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
+  def filter = {
+    def select(default: Any, actual: Any) = {
+      ("value=" + default + " [selected]") #> (None: Option[String]) andThen
+              ("value=" + actual) #> ((x: NodeSeq) => x.asInstanceOf[Elem] % ("selected" -> "selected"))
+    }
 
-    ".from" #> 0.toString & ".to" #> 0.toString & ".total" #> shortenedUrl.count.toString &
-            ".links" #> shortenedUrl.count.toString & ".clicks" #> 0.toString
+    "name=search [value]" #> search.is &
+            "name=search-in" #> select(ShortenedUrl.originUrl.name, searchIn) &
+            "name=sort-by" #> select(ShortenedUrl.linkId.name, sortBy) &
+            "name=sort-order" #> select(-1, sortOrder) &
+            "name=perpage [value]" #> perpage.is.toString &
+            "name=click-filter" #> select("gte", clickFilter) &
+            "name=click-limit [value]" #> clickLimit.is
   }
 
-  def list = {
-    val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
+  def paging = "#total-pages" #> java.lang.Math.ceil(totalItems.is / perpage.is).toInt
 
-    if (shortenedUrl.count == 0) {
-      ".nourl-found ^^" #> "true"
-    } else {
-      val sortSearch = S.param("sort-search")
-      val sortIn = S.param("sort-in")
-      val sortBy = S.param("sort-by")
-      val sortOrder = S.param("sort-order")
-      val perpage = S.param("perpage")
-      val linkFiler = S.param("link-filter")
-      val linkLimit = S.param("link-limit")
-      logger.debug {
-        "sort-search: " + sortSearch + "\n" +
-                "sortin: " + sortIn + "\n" +
-                "sort-by: " + sortBy + "\n" +
-                "sort-order: " + sortOrder + "\n" +
-                "perpage: " + perpage + "\n" +
-                "link-filter: " + linkFiler + "\n" +
-                "link-limit: " + linkLimit + "\n"
-      }
-      ".nourl-found" #> shortenedUrl.findAll.map(generateRow)
-    }
+  def list = if (totalItems.is == 0) {
+    ".nourl-found ^^" #> "true"
+  } else {
+    ".nourl-found" #> shortenedUrl.findAll(clickObject.is ~ searchObject.is,
+      (sortBy.is -> sortOrder.is), findOptions: _*).map(generateRow)
   }
 }
 

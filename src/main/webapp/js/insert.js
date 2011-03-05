@@ -2,9 +2,6 @@ $(document).ready(function() {
     reset_url();
     if ($("#tblUrl tr.nourl_found").length != 1) {
         $("#tblUrl").tablesorter({
-            sortList:[
-                [3,1]
-            ], // Sort on column #3 (numbering starts at 0)
             headers: { 6: {sorter: false} }, // no sorter on column #6
             widgets: ["zebra"] // prettify
         });
@@ -13,7 +10,7 @@ $(document).ready(function() {
 
 function preadd() {
     var newurl = $("#add-url").val();
-    if ( !newurl || newurl == "http://" || newurl == "https://" ) {
+    if (!newurl || newurl == "http://" || newurl == "https://") {
         alert("no URL ?");
         return false;
     }
@@ -51,8 +48,8 @@ function reset_url() {
 }
 
 function increment() {
-    $(".increment").each(function(){
-        $(this).html( parseInt($(this).html()) + 1);
+    $(".increment").each(function() {
+        $(this).html(parseInt($(this).html()) + 1);
     });
 }
 
@@ -71,7 +68,7 @@ function remove(realDelete) {
 }
 
 function hide_edit(id) {
-    $("#edit-" + id).fadeOut(200, function(){
+    $("#edit-" + id).fadeOut(200, function() {
         remove_loading("#edit-button-" + id);
         remove_loading("#delete-button-" + id);
         $(this).remove();
