@@ -3,4 +3,4 @@ target
 *.ipr
 *.iws
 .DS_Store
-lift_proto*
+jrelbel.sh

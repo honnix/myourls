@@ -14,6 +14,7 @@ import Helpers._
 import net.liftweb.json.JsonDSL._
 import java.util.Date
 import net.liftweb.common.Loggable
+import net.liftweb.mongodb.MongoDB
 import model.ShortenedUrl
 
 import lib.DependencyFactory
@@ -55,7 +56,7 @@ class Admin extends Loggable {
 
   object searchObject extends RequestVar[JObject](
     if (search.isEmpty) JObject(Nil)
-    else ("$where" -> ("this." + ShortenedUrl.originUrl.name + ".indexOf('" + search + "') != -1"))
+    else ("$where" -> ("this." + searchIn + ".indexOf('" + search + "') != -1"))
   )
 
   object findOptions extends RequestVar[List[FindOption]](
@@ -165,11 +166,28 @@ class Admin extends Loggable {
     }
   }
 
-  def info = ".from" #> (if (offset.is + 1 > totalItems) totalItems else offset.is + 1).toString &
-          ".to" #> (if (offset.is + perpage > totalItems) totalItems else offset.is + perpage).toString &
-          ".total" #> totalItems.toString &
-          ".links" #> shortenedUrl.count.toString &
-          ".clicks" #> shortenedUrl.findAll.foldLeft(0)(_ + _.clickCount.value).toString
+  def info = {
+    def countClicks = {
+      MongoDB.useCollection(shortenedUrl.collectionName) {
+        x => {
+          val map = """function() { emit("totalClickCount", this.%s); }""" format ShortenedUrl.clickCount.name
+          val reduce = """function(key, values) { return Array.sum(values); }"""
+          val results = x.mapReduce(map, reduce, null, null).results
+
+          /**
+           * no idea why it is a double here, seems a bug in mongodb-java-driver, upgrading to v2.4 solves
+           */
+          if (results.hasNext) results.next.get("value").asInstanceOf[Number].intValue.toString else "0"
+        }
+      }
+    }
+
+    ".from" #> (if (offset.is + 1 > totalItems) totalItems else offset.is + 1).toString &
+            ".to" #> (if (offset.is + perpage > totalItems) totalItems else offset.is + perpage).toString &
+            ".total" #> totalItems.toString &
+            ".links" #> shortenedUrl.count.toString &
+            ".clicks" #> countClicks
+  }
 
   def filter = {
     def select(default: Any, actual: Any) = {
@@ -186,7 +204,38 @@ class Admin extends Loggable {
             "name=click-limit [value]" #> clickLimit.is
   }
 
-  def paging = "#total-pages" #> java.lang.Math.ceil(totalItems.is / perpage.is).toInt
+  def paging = {
+    val totalPages = java.lang.Math.ceil(totalItems.is.toDouble / perpage.is).toInt
+
+    def generateNav: NodeSeq = {
+      def generateHref(page: Int) = "/?search=" + search + "&sort-by=" + sortBy + "&sort-order=" + sortOrder +
+              "&search-in=" + searchIn + "&click-filter=" + clickFilter + "&click-limit=" + clickLimit +
+              "&perpage=" + perpage + "&page=" + page
+
+      val left = if (page.is != 1) <a href={generateHref(page - 1)} title={"« Go to Page %d" format (page - 1)}>«</a>
+      else Nil
+
+      val pages = (1 to totalPages).toList.map {
+        x =>
+          if (x == page.is)
+            <strong>
+              {"[" + x + "]"}
+            </strong>
+          else
+            <a href={generateHref(x)} title={"Page " + x}>
+              {x}
+            </a>
+      }
+
+      val right = if (page.is != totalPages) <a href={generateHref(page.is + 1)} title={"Go to Page %d »" format (page.is + 1)}>»</a>
+      else Nil
+
+      left ++ pages ++ right
+    }
+
+    "#total-pages" #> totalPages.toString &
+            "#nav" #> generateNav
+  }
 
   def list = if (totalItems.is == 0) {
     ".nourl-found ^^" #> "true"
