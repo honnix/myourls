@@ -175,7 +175,7 @@ class Admin extends Loggable {
           val results = x.mapReduce(map, reduce, null, null).results
 
           /**
-           * no idea why it is a double here, seems a bug in mongodb-java-driver, upgrading to v2.4 solves
+           * all numbers returned by mongodb is Double since this is how number defined by javascript
            */
           if (results.hasNext) results.next.get("value").asInstanceOf[Number].intValue.toString else "0"
         }
