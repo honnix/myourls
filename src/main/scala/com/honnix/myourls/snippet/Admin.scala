@@ -126,13 +126,9 @@ class Admin extends Loggable {
               (RealContentId + " [id]") #> (IdPrefix + shortenedUrl.linkId.value) &
                       "#id *" #> shortenedUrl.linkId.value &
                       "#id [id]" #> (None: Option[String]) &
-                      "#originUrl *" #> <a href={shortenedUrl.originUrl.value}>
-                        {shortenedUrl.originUrl.value}
-                      </a> &
+                      "#originUrl *" #> <a href={shortenedUrl.originUrl.value}>{shortenedUrl.originUrl.value}</a> &
                       "#originUrl [id]" #> ("url-" + shortenedUrl.linkId.value) &
-                      "#shortUrl *" #> <a href={shortenedUrl.shortUrl.value}>
-                        {shortenedUrl.shortUrl.value}
-                      </a> &
+                      "#shortUrl *" #> <a href={shortenedUrl.shortUrl.value}>{shortenedUrl.shortUrl.value}</a> &
                       "#date *" #> shortenedUrl.date.value.toString &
                       "#ip *" #> shortenedUrl.ip.value &
                       "#clickCount *" #> shortenedUrl.clickCount.value.toString &
@@ -169,7 +165,8 @@ class Admin extends Loggable {
   def info = {
     def countClicks = {
       MongoDB.useCollection(shortenedUrl.collectionName) {
-        x => {
+        case x if x.count == 0 => "0"
+        case x =>
           val map = """function() { emit("totalClickCount", this.%s); }""" format ShortenedUrl.clickCount.name
           val reduce = """function(key, values) { return Array.sum(values); }"""
           val results = x.mapReduce(map, reduce, null, null).results
@@ -178,7 +175,6 @@ class Admin extends Loggable {
            * all numbers returned by mongodb is Double since this is how number defined by javascript
            */
           if (results.hasNext) results.next.get("value").asInstanceOf[Number].intValue.toString else "0"
-        }
       }
     }
 
@@ -218,13 +214,9 @@ class Admin extends Loggable {
       val pages = (1 to totalPages).toList.map {
         x =>
           if (x == page.is)
-            <strong>
-              {"[" + x + "]"}
-            </strong>
+            <strong>{"[" + x + "]"}</strong>
           else
-            <a href={generateHref(x)} title={"Page " + x}>
-              {x}
-            </a>
+            <a href={generateHref(x)} title={"Page " + x}>{x}</a>
       }
 
       val right = if (page.is != totalPages) <a href={generateHref(page.is + 1)} title={"Go to Page %d »" format (page.is + 1)}>»</a>

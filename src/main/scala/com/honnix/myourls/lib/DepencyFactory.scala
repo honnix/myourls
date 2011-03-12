@@ -38,12 +38,11 @@ object DependencyFactory extends Factory {
 
   type NextIdMetaRecord = MongoMetaRecord[NextId]
 
-  implicit object shortenedUrl extends FactoryMaker(() => ShortenedUrl.asInstanceOf[ShortenedUrlMetaRecord])
+  implicit object shortenedUrl extends FactoryMaker(() => ShortenedUrl: ShortenedUrlMetaRecord)
 
-  implicit object nextId extends FactoryMaker(() => NextId.asInstanceOf[NextIdMetaRecord])
+  implicit object nextId extends FactoryMaker(() => NextId: NextIdMetaRecord)
 
-  implicit object nextIdGenerator extends FactoryMaker(() => DefaultNextIdGenerator.asInstanceOf[NextIdGenerator])
-
+  implicit object nextIdGenerator extends FactoryMaker(() => DefaultNextIdGenerator: NextIdGenerator)
 
   /**
    * objects in Scala are lazily created.  The init()
