@@ -18,7 +18,7 @@ import net.liftweb.mongodb.MongoDB
 import model.ShortenedUrl
 
 import lib.DependencyFactory
-import lib.DependencyFactory.ShortenedUrlMetaRecord
+import DependencyFactory.ShortenedUrlMetaRecord
 import lib.NextIdGenerator
 import xml.{Elem, Text, NodeSeq, MetaData, UnprefixedAttribute, Null}
 import net.liftweb.json.JsonAST.JObject

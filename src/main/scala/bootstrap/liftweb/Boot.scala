@@ -29,8 +29,8 @@ import net.liftweb.sitemap.Loc._
 import net.liftweb.mongodb._
 
 import com.honnix.myourls.constant.SystemConstant._
-import com.honnix.myourls.lib.DependencyFactory
-import com.honnix.myourls.lib.NextIdGenerator
+import com.honnix.myourls.lib._
+import com.honnix.myourls.api.AdminAPI
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -61,6 +61,9 @@ class Boot {
       Menu("shortener", "Shortener") / "shortener" / **)
 
     LiftRules.setSiteMapFunc(sitemap _)
+
+    // rest API
+    LiftRules.dispatch.append(AdminAPI)
 
     /*
      * Rewrite http://server/<id> to http://server/shortener/<id>

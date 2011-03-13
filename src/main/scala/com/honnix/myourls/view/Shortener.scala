@@ -22,12 +22,11 @@ package view {
 
 import net.liftweb.http.LiftView
 import net.liftweb.http.S._
-import net.liftweb.common.Loggable
-
 import model.ShortenedUrl
 import constant.SystemConstant.AdminPageUrl
 import lib.DependencyFactory
-import lib.DependencyFactory.ShortenedUrlMetaRecord
+import DependencyFactory.ShortenedUrlMetaRecord
+import net.liftweb.common.{Full, Loggable}
 
 /**
  * Shortener view who does the real job.
@@ -36,18 +35,20 @@ import lib.DependencyFactory.ShortenedUrlMetaRecord
  */
 class Shortener extends LiftView with Loggable {
   def dispatch = {
-    case id: String if id.matches("\\w+") =>
+    case linkId: String if linkId.matches("\\w+") =>
       import net.liftweb.json.JsonDSL._
-      logger.debug("linkId is [" + id + "]")
-      val record = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!.find(ShortenedUrl.linkId.name -> id)
+      logger.debug("linkId is [" + linkId + "]")
+
+      val record = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!.find(ShortenedUrl.linkId.name -> linkId)
 
       logger.debug("record is [" + record + "]")
-      val url = if (record.isDefined) {
-        val openedRecord = record.open_!
-        openedRecord.clickCount(openedRecord.clickCount.value + 1).save
-        openedRecord.originUrl.value
-      } else AdminPageUrl
-      redirectTo(url)
+
+      val url = record.map(x => {
+        x.clickCount(x.clickCount.value + 1).save
+        x.originUrl.value
+      })
+
+      redirectTo(url openOr AdminPageUrl)
     case _ => redirectTo(AdminPageUrl)
   }
 }
