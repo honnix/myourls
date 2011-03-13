@@ -1,5 +1,3 @@
-package com.honnix.myourls.api
-
 /**
  * Created : 03.12, 2011
  *
@@ -19,15 +17,21 @@ package com.honnix.myourls.api
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+package com.honnix.myourls {
+package api {
 
 import net.liftweb.http.rest.RestHelper
-import net.liftweb.http.S
+import net.liftweb.http.S._
 import net.liftweb.json.JsonDSL._
-import com.honnix.myourls.lib.DependencyFactory
+import lib.DependencyFactory
 import DependencyFactory.ShortenedUrlMetaRecord
 import com.honnix.myourls.model.ShortenedUrl
 import net.liftweb.json.JsonAST.JObject
 import net.liftweb.common._
+import com.honnix.myourls.lib._
+import net.liftweb.util.Props
+import constant.SystemConstant._
+import java.util.Date
 
 object AdminAPI extends RestHelper with Loggable {
   val StatusField = "status"
@@ -39,7 +43,16 @@ object AdminAPI extends RestHelper with Loggable {
   val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
 
   private def add = {
-    null
+    val linkId = param(ShortenedUrl.originUrl.name).map(x => {
+      shortenedUrl.find(ShortenedUrl.originUrl.name -> x).map(_.linkId.value) or {
+        val tmp = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
+        shortenedUrl.createRecord.linkId(tmp).originUrl(x).shortUrl(Props.get(Site).open_! + "/" + tmp).date(new Date).
+                ip(containerRequest.map(_.remoteAddress).toString).clickCount(0).save
+        Full(tmp)
+      }
+    })
+    (StatusField -> linkId.map(_.map(x => SuccessStatus)).openOr(Full(FailedStatus)).openOr(FailedStatus)) ~
+            (ShortenedUrl.linkId.name -> linkId.openOr(Full("")).openOr(""))
   }
 
   private def delete = {
@@ -51,7 +64,7 @@ object AdminAPI extends RestHelper with Loggable {
   }
 
   private def get: JObject = {
-    val record = S.param(ShortenedUrl.linkId.name).map(x => shortenedUrl.find(ShortenedUrl.linkId.name -> x).map(_.originUrl.value))
+    val record = param(ShortenedUrl.linkId.name).map(x => shortenedUrl.find(ShortenedUrl.linkId.name -> x).map(_.originUrl.value))
     (StatusField -> record.map(_.map(x => SuccessStatus)).openOr(Full(FailedStatus)).openOr(FailedStatus)) ~
             (ShortenedUrl.originUrl.name -> record.openOr(Full("")).openOr(""))
   }
@@ -67,4 +80,8 @@ object AdminAPI extends RestHelper with Loggable {
     case "api" :: "get" :: Nil JsonGet _ => get
     case "api" :: "list" :: Nil JsonGet _ => list
   }
+}
+
+}
+
 }

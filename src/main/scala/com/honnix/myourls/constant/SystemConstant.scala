@@ -29,6 +29,8 @@ object SystemConstant {
   val ProductName = "myourls"
 
   val AdminPageUrl = "/index"
+
+  val Site = "site"
 }
 
 }

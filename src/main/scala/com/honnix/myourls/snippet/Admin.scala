@@ -16,13 +16,13 @@ import java.util.Date
 import net.liftweb.common.Loggable
 import net.liftweb.mongodb.MongoDB
 import model.ShortenedUrl
-
 import lib.DependencyFactory
 import DependencyFactory.ShortenedUrlMetaRecord
 import lib.NextIdGenerator
 import xml.{Elem, Text, NodeSeq, MetaData, UnprefixedAttribute, Null}
 import net.liftweb.json.JsonAST.JObject
 import net.liftweb.mongodb.{Limit, Skip, FindOption}
+import constant.SystemConstant._
 
 class Admin extends Loggable {
   val shortenedUrl = DependencyFactory.inject[ShortenedUrlMetaRecord].open_!
@@ -31,23 +31,23 @@ class Admin extends Loggable {
     shortenedUrl.createRecord.date(new Date)
   )
 
-  object page extends RequestVar[Int](S.param("page").openOr("1").toInt)
+  object page extends RequestVar[Int](param("page").openOr("1").toInt)
 
-  object perpage extends RequestVar[Int](S.param("perpage").openOr("10").toInt)
+  object perpage extends RequestVar[Int](param("perpage").openOr("10").toInt)
 
   object offset extends RequestVar[Int]((page - 1) * perpage)
 
-  object search extends RequestVar[String](S.param("search").openOr(""))
+  object search extends RequestVar[String](param("search").openOr(""))
 
-  object searchIn extends RequestVar[String](S.param("search-in").openOr(ShortenedUrl.originUrl.name))
+  object searchIn extends RequestVar[String](param("search-in").openOr(ShortenedUrl.originUrl.name))
 
-  object sortBy extends RequestVar[String](S.param("sort-by").openOr(ShortenedUrl.linkId.name))
+  object sortBy extends RequestVar[String](param("sort-by").openOr(ShortenedUrl.linkId.name))
 
-  object sortOrder extends RequestVar[Int](S.param("sort-order").openOr("-1").toInt)
+  object sortOrder extends RequestVar[Int](param("sort-order").openOr("-1").toInt)
 
-  object clickFilter extends RequestVar[String](S.param("click-filter").openOr("gte"))
+  object clickFilter extends RequestVar[String](param("click-filter").openOr("gte"))
 
-  object clickLimit extends RequestVar[String](S.param("click-limit").openOr(""))
+  object clickLimit extends RequestVar[String](param("click-limit").openOr(""))
 
   object clickObject extends RequestVar[JObject](
     if (clickLimit.isEmpty) JObject(Nil)
@@ -147,8 +147,8 @@ class Admin extends Loggable {
       }
       else {
         val linkId = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
-        currentShortenedUrl.linkId(linkId).shortUrl(Props.get("site").open_! + "/" + linkId).
-                ip(containerRequest.open_!.remoteAddress).clickCount(0).save
+        currentShortenedUrl.linkId(linkId).shortUrl(Props.get(Site).open_! + "/" + linkId).
+                ip(containerRequest.map(_.remoteAddress).toString).clickCount(0).save
         notice(currentShortenedUrl.originUrl.value + " added to database")
         PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
                 FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second) & Call("postadd")
