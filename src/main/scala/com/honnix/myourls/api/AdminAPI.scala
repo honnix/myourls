@@ -33,7 +33,7 @@ import net.liftweb.util.Props
 import constant.SystemConstant._
 import java.util.Date
 
-object AdminAPI extends RestHelper with Loggable {
+object AdminAPI extends RestHelper {
   val StatusField = "status"
 
   val SuccessStatus = "successful"
@@ -56,21 +56,31 @@ object AdminAPI extends RestHelper with Loggable {
   }
 
   private def delete = {
-    null
+    val linkId = param(ShortenedUrl.linkId.name).map(x =>
+      shortenedUrl.find(ShortenedUrl.linkId.name -> x).map(x => {
+        x.delete_!
+        x.linkId.value
+      })
+    )
+    (StatusField -> linkId.map(_.map(x => SuccessStatus)).openOr(Full(FailedStatus)).openOr(FailedStatus)) ~
+            (ShortenedUrl.linkId.name -> linkId.openOr(Full("")).openOr(""))
   }
 
   private def edit = {
-    null
+    val originUrl = param(ShortenedUrl.linkId.name).map(x =>
+      shortenedUrl.find(ShortenedUrl.linkId.name -> x).map(x =>
+        param(ShortenedUrl.originUrl.name).map(x.originUrl(_).save.originUrl.value)
+      )
+    )
+    (StatusField -> originUrl.map(_.map(_.map(x => SuccessStatus))).openOr(Full(Full(FailedStatus))).
+            openOr(Full(FailedStatus)).openOr(FailedStatus)) ~
+            (ShortenedUrl.originUrl.name -> originUrl.openOr(Full(Full(""))).openOr(Full("")).openOr(""))
   }
 
   private def get: JObject = {
-    val record = param(ShortenedUrl.linkId.name).map(x => shortenedUrl.find(ShortenedUrl.linkId.name -> x).map(_.originUrl.value))
-    (StatusField -> record.map(_.map(x => SuccessStatus)).openOr(Full(FailedStatus)).openOr(FailedStatus)) ~
-            (ShortenedUrl.originUrl.name -> record.openOr(Full("")).openOr(""))
-  }
-
-  private def list = {
-    null
+    val originUrl = param(ShortenedUrl.linkId.name).map(x => shortenedUrl.find(ShortenedUrl.linkId.name -> x).map(_.originUrl.value))
+    (StatusField -> originUrl.map(_.map(x => SuccessStatus)).openOr(Full(FailedStatus)).openOr(FailedStatus)) ~
+            (ShortenedUrl.originUrl.name -> originUrl.openOr(Full("")).openOr(""))
   }
 
   serve {
@@ -78,7 +88,6 @@ object AdminAPI extends RestHelper with Loggable {
     case "api" :: "delete" :: Nil JsonGet _ => delete
     case "api" :: "edit" :: Nil JsonGet _ => edit
     case "api" :: "get" :: Nil JsonGet _ => get
-    case "api" :: "list" :: Nil JsonGet _ => list
   }
 }
 
