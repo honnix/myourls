@@ -44,7 +44,8 @@ class Boot {
   }
 
   private def addUnloadHooks {
-    LiftRules.unloadHooks.append(() => DependencyFactory.inject[NextIdGenerator].open_! ! 'exit)
+    LiftRules.unloadHooks.append(() => DependencyFactory.inject[NextIdGenerator].open_! ! 'exit).
+            append(() => MongoDB.close)
   }
 
   def boot {

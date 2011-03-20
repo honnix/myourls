@@ -148,7 +148,7 @@ class Admin extends Loggable {
       else {
         val linkId = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
         currentShortenedUrl.linkId(linkId).shortUrl(Props.get(Site).open_! + "/" + linkId).
-                ip(containerRequest.map(_.remoteAddress).toString).clickCount(0).save
+                ip(containerRequest.map(_.remoteAddress) openOr "unkown").clickCount(0).save
         notice(currentShortenedUrl.originUrl.value + " added to database")
         PrependHtml("tblUrl-body", generateRow(currentShortenedUrl)) & Hide(currentShortenedUrl.id.toString) &
                 FadeIn(currentShortenedUrl.id.toString, 0 second, 1 second) & Call("postadd")

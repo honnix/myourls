@@ -47,7 +47,7 @@ object AdminAPI extends RestHelper {
       shortenedUrl.find(ShortenedUrl.originUrl.name -> x).map(_.linkId.value) or {
         val tmp = (DependencyFactory.inject[NextIdGenerator].open_! !? 'id).toString
         shortenedUrl.createRecord.linkId(tmp).originUrl(x).shortUrl(Props.get(Site).open_! + "/" + tmp).date(new Date).
-                ip(containerRequest.map(_.remoteAddress).toString).clickCount(0).save
+                ip(containerRequest.map(_.remoteAddress) openOr "unkown").clickCount(0).save
         Full(tmp)
       }
     })
