@@ -191,13 +191,13 @@ class Admin extends Loggable {
               ("value=" + actual) #> ((x: NodeSeq) => x.asInstanceOf[Elem] % ("selected" -> "selected"))
     }
 
-    "name=search [value]" #> search.is &
-            "name=search-in" #> select(ShortenedUrl.originUrl.name, searchIn) &
-            "name=sort-by" #> select(ShortenedUrl.linkId.name, sortBy) &
-            "name=sort-order" #> select(-1, sortOrder) &
-            "name=perpage [value]" #> perpage.is.toString &
-            "name=click-filter" #> select("gte", clickFilter) &
-            "name=click-limit [value]" #> clickLimit.is
+    "@search [value]" #> search.is &
+            "@search-in" #> select(ShortenedUrl.originUrl.name, searchIn) &
+            "@sort-by" #> select(ShortenedUrl.linkId.name, sortBy) &
+            "@sort-order" #> select(-1, sortOrder) &
+            "@perpage [value]" #> perpage.is.toString &
+            "@click-filter" #> select("gte", clickFilter) &
+            "@click-limit [value]" #> clickLimit.is
   }
 
   def paging = {
